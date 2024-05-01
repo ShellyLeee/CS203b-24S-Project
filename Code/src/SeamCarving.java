@@ -19,7 +19,7 @@ public class SeamCarving {
     int constant = 1000;
 
     public static void main(String[] args) {
-        SeamCarving sc = new SeamCarving("image_1.jpg");
+        SeamCarving sc = new SeamCarving("Code/image_1.jpg");
         long startTime = System.currentTimeMillis(); 
         sc.cutHeight(200);
         sc.cutWidth(100);
@@ -311,7 +311,7 @@ public class SeamCarving {
 
         // Save the seam map image
         try {
-            File seamFile = new File("new_image.jpg");
+            File seamFile = new File("Code/new_image.jpg");
             ImageIO.write(newImage, "jpg", seamFile);
             // System.out.println("Seam removed successfully");
         } catch (IOException e) {
@@ -347,7 +347,7 @@ public class SeamCarving {
 
         // Save the seam map image
         try {
-            File seamFile = new File("new_image.jpg");
+            File seamFile = new File("Code/new_image.jpg");
             ImageIO.write(newImage, "jpg", seamFile);
             // System.out.println("Seam removed successfully");
         } catch (IOException e) {
