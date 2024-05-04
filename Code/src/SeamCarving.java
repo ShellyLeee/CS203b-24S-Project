@@ -17,10 +17,12 @@ public class SeamCarving {
     int[] seamMap_w;
     int[] seamMap_h;
     int constant = 1000;
+    public int ChangeWidth;
+    public int ChangeHeight;
 
     public static void main(String[] args) {
         SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
-        long startTime = System.currentTimeMillis(); 
+        long startTime = System.currentTimeMillis();
         sc.cutHeight(200);
         sc.cutWidth(100);
         long endTime = System.currentTimeMillis();
@@ -41,6 +43,7 @@ public class SeamCarving {
     }
 
     public void cutWidth(int n) {
+        ChangeWidth = n;
         BufferedImage newImage = raw_image;
         for (int i = 0; i < n; i++) {
             long startTime = System.currentTimeMillis();
@@ -54,6 +57,7 @@ public class SeamCarving {
     }
 
     public void cutHeight(int n) {
+        ChangeHeight = n;
         BufferedImage newImage = raw_image;
         for (int i = 0; i < n; i++) {
             long startTime = System.currentTimeMillis();
