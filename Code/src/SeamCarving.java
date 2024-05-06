@@ -23,14 +23,15 @@ public class SeamCarving {
     public static void main(String[] args) {
         SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
         long startTime = System.currentTimeMillis();
-        sc.cutHeight(200);
         sc.cutWidth(100);
+        sc.cutHeight(200);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
         sc.showSeamMap("height");
     }
 
-    private SeamCarving(String imagePath) {
+    //修改：private改成Public影响大么。。忘记相关约束了
+    public SeamCarving(String imagePath) {
         readImage(imagePath);
     }
 

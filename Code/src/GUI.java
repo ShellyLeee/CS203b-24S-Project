@@ -8,7 +8,8 @@ import java.io.File;
 import java.io.IOException;
 
 public class GUI extends JFrame{
-    private JPanel operateArea;
+    private String imgPath;
+    public JPanel operateArea;
     public JButton Shrink;
     public JButton Expand;
     public JButton Import;
@@ -49,6 +50,52 @@ public class GUI extends JFrame{
         this.setVisible(true);
     }
 
+    private void addImportButton(){
+        Import= new JButton("Import");
+        Import.setSize(120,50);
+        Import.setLocation(WIDTH * 4 / 5, HEIGHT / 10);
+
+        Import.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    imgPath = selectedFile.getAbsolutePath();
+                    try {
+                        TargetImage = ImageIO.read(selectedFile);
+                        int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
+                        int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
+                        double widthRatio = (double) maxWidth / TargetImage.getWidth();
+                        double heightRatio = (double) maxHeight / TargetImage.getHeight();
+                        double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
+
+                        int newWidth = (int) (TargetImage.getWidth() * ratio);
+                        int newHeight = (int) (TargetImage.getHeight() * ratio);
+
+                        int x = (500 - newWidth) / 2;
+                        int y = (500 - newHeight) / 2;
+
+                        Image scaledImage = TargetImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                        ImageIcon icon = new ImageIcon(scaledImage);
+                        JLabel imageLabel = new JLabel(icon);
+                        imageLabel.setBounds(x, y, newWidth, newHeight);
+                        operateArea.removeAll(); // 清空 OperateArea 区域
+                        operateArea.add(imageLabel); // 添加缩放后的图片
+                        operateArea.revalidate(); // 重新布局
+                        operateArea.repaint(); // 刷新显示
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        add(Import);
+        setVisible(true);
+    }
+
     private void addShrinkButton(){
         Shrink = new JButton("Shrink");
         Shrink.setSize(120,50);
@@ -79,6 +126,12 @@ public class GUI extends JFrame{
                         JOptionPane.showMessageDialog(null, "Please enter valid numbers for Width and Height.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
+
+                // Logic
+                SeamCarving sc = new SeamCarving(imgPath);
+                sc.cutWidth(ChangeWidth);
+                sc.cutHeight(ChangeHeight);
+                // 未完待续
             }
         });
 
@@ -123,50 +176,6 @@ public class GUI extends JFrame{
         setVisible(true);
     }
 
-    private void addImportButton(){
-        Import= new JButton("Import");
-        Import.setSize(120,50);
-        Import.setLocation(WIDTH * 4 / 5, HEIGHT / 10);
-
-        Import.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFileChooser fileChooser = new JFileChooser();
-                int returnValue = fileChooser.showOpenDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    try {
-                        TargetImage = ImageIO.read(selectedFile);
-                        int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
-                        int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
-                        double widthRatio = (double) maxWidth / TargetImage.getWidth();
-                        double heightRatio = (double) maxHeight / TargetImage.getHeight();
-                        double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
-
-                        int newWidth = (int) (TargetImage.getWidth() * ratio);
-                        int newHeight = (int) (TargetImage.getHeight() * ratio);
-
-                        int x = (500 - newWidth) / 2;
-                        int y = (500 - newHeight) / 2;
-
-                        Image scaledImage = TargetImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                        ImageIcon icon = new ImageIcon(scaledImage);
-                        JLabel imageLabel = new JLabel(icon);
-                        imageLabel.setBounds(x, y, newWidth, newHeight);
-                        operateArea.removeAll(); // 清空 OperateArea 区域
-                        operateArea.add(imageLabel); // 添加缩放后的图片
-                        operateArea.revalidate(); // 重新布局
-                        operateArea.repaint(); // 刷新显示
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        add(Import);
-        setVisible(true);
-    }
     private void addSelectKeepButton(){
         SelectKeep= new JButton("Select to Keep");
         SelectKeep.setSize(120,50);
@@ -259,7 +268,4 @@ public class GUI extends JFrame{
         setVisible(true);
     }
 
-    public static void main(String[] args) {
-        GUI gui = new GUI(800,600);
-    }
 }
