@@ -3,9 +3,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import javax.imageio.ImageIO;
-
+import java.awt.Point;
+import java.util.Scanner;
 public class SeamCarving {
 
     BufferedImage raw_image;
@@ -20,8 +20,24 @@ public class SeamCarving {
     public int ChangeWidth;
     public int ChangeHeight;
 
+    //选取左上角
+
+
     public static void main(String[] args) {
-        SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("输入0 正常SeamCarving 输入1 区域避免 输入2 区域强化");
+        int number = scanner.nextInt();
+        SeamCarving sc = null; // 在 if-else 外部声明
+
+
+        //输入0 正常seamcarving 输入1 区域避免 输入2 区域强化
+        if(number == 0) {
+            sc = new SeamCarving("Code/img/ha.jpg");
+        } else if (number == 1) {
+            sc = new SeamCarving("Code/img/ha.jpg", 0);
+        }
+
+
         long startTime = System.currentTimeMillis();
         sc.cutHeight(200);
         sc.cutWidth(100);
@@ -29,9 +45,12 @@ public class SeamCarving {
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
         sc.showSeamMap("height");
     }
-
-    private SeamCarving(String imagePath) {
+    public SeamCarving(String imagePath) {
         readImage(imagePath);
+    }
+    public SeamCarving(String imagePath,int a) {
+        readImage(imagePath);
+        nonTouchableArea=new NonTouchableArea(new Point(0,0),new Point(0,0));
     }
 
     public void showSeamMap(String mode) {
@@ -48,6 +67,12 @@ public class SeamCarving {
         for (int i = 0; i < n; i++) {
             long startTime = System.currentTimeMillis();
             int[] seamMap = calculateRowEnergy(newImage, width, height);
+
+            if (intersectsVerticalNonTouchableArea(seamMap)) {
+                System.out.println("Seam intersects with vertical non-touchable area. Skipping...");
+                continue; // 跳过该缝隙，继续下一个缝隙
+            }
+
             newImage = new BufferedImage(width--, height, BufferedImage.TYPE_INT_RGB);
             newImage = removeWidthSeam(newImage, seamMap, width, height);
             long endTime = System.currentTimeMillis();
@@ -62,6 +87,12 @@ public class SeamCarving {
         for (int i = 0; i < n; i++) {
             long startTime = System.currentTimeMillis();
             int[] seamMap = calculateColumnEnergy(newImage, width, height);
+
+
+            if (intersectsHorizontalNonTouchableArea(seamMap)) {
+                System.out.println("Seam intersects with horizontal non-touchable area. Skipping...");
+                continue; // 跳过该缝隙，继续下一个缝隙
+            }
             newImage = new BufferedImage(width, height--, BufferedImage.TYPE_INT_RGB);
             newImage = removeColumnSeam(newImage, seamMap, width, height);
             long endTime = System.currentTimeMillis();
@@ -118,22 +149,22 @@ public class SeamCarving {
                     seamingMap[y][x] = x;
                     continue;
                 } else if (x == 0) {
-                    double[] pre_energy_part = { pre_energy[x], pre_energy[x + 1] };
-                    int[] indexes = { x, x + 1 };
+                    double[] pre_energy_part = {pre_energy[x], pre_energy[x + 1]};
+                    int[] indexes = {x, x + 1};
                     double[] best = selectPath(pre_energy_part, indexes);
                     current_energy[x] = constant + best[0];
                     seamingMap[y][x] = (int) best[1];
                     continue;
                 } else if (x == w - 1) {
-                    double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x] };
-                    int[] indexes = { x - 1, x };
+                    double[] pre_energy_part = {pre_energy[x - 1], pre_energy[x]};
+                    int[] indexes = {x - 1, x};
                     double[] best = selectPath(pre_energy_part, indexes);
                     current_energy[x] = constant + best[0];
                     seamingMap[y][x] = (int) best[1];
                     continue;
                 } else if (y == h - 1) {
-                    double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
-                    int[] indexes = { x - 1, x, x + 1 };
+                    double[] pre_energy_part = {pre_energy[x - 1], pre_energy[x], pre_energy[x + 1]};
+                    int[] indexes = {x - 1, x, x + 1};
                     double[] best = selectPath(pre_energy_part, indexes);
                     current_energy[x] = constant + best[0];
                     seamingMap[y][x] = (int) best[1];
@@ -141,8 +172,8 @@ public class SeamCarving {
                 }
 
                 // select minimus energy path from the last row
-                double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
-                int[] indexes = { x - 1, x, x + 1 };
+                double[] pre_energy_part = {pre_energy[x - 1], pre_energy[x], pre_energy[x + 1]};
+                int[] indexes = {x - 1, x, x + 1};
                 double[] best = selectPath(pre_energy_part, indexes);
 
                 // current energy
@@ -188,22 +219,22 @@ public class SeamCarving {
                     seamingMap[y][x] = x;
                     continue;
                 } else if (x == 0) {
-                    double[] pre_energy_part = { pre_energy[x], pre_energy[x + 1] };
-                    int[] indexes = { x, x + 1 };
+                    double[] pre_energy_part = {pre_energy[x], pre_energy[x + 1]};
+                    int[] indexes = {x, x + 1};
                     double[] best = selectPath(pre_energy_part, indexes);
                     current_energy[x] = constant + best[0];
                     seamingMap[y][x] = (int) best[1];
                     continue;
                 } else if (x == h - 1) {
-                    double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x] };
-                    int[] indexes = { x - 1, x };
+                    double[] pre_energy_part = {pre_energy[x - 1], pre_energy[x]};
+                    int[] indexes = {x - 1, x};
                     double[] best = selectPath(pre_energy_part, indexes);
                     current_energy[x] = constant + best[0];
                     seamingMap[y][x] = (int) best[1];
                     continue;
                 } else if (y == w - 1) {
-                    double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
-                    int[] indexes = { x - 1, x, x + 1 };
+                    double[] pre_energy_part = {pre_energy[x - 1], pre_energy[x], pre_energy[x + 1]};
+                    int[] indexes = {x - 1, x, x + 1};
                     double[] best = selectPath(pre_energy_part, indexes);
                     current_energy[x] = constant + best[0];
                     seamingMap[y][x] = (int) best[1];
@@ -211,8 +242,8 @@ public class SeamCarving {
                 }
 
                 // select minimus energy path from the last row
-                double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
-                int[] indexes = { x - 1, x, x + 1 };
+                double[] pre_energy_part = {pre_energy[x - 1], pre_energy[x], pre_energy[x + 1]};
+                int[] indexes = {x - 1, x, x + 1};
                 double[] best = selectPath(pre_energy_part, indexes);
 
                 // current energy
@@ -264,14 +295,14 @@ public class SeamCarving {
         BufferedImage seamImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         seamImage = raw_image;
 
-        if (mode == "width") {
+        if ("width".equals(mode)) {
             // Iterate over each pixel and set the color based on the seam map
             for (int y = height - 1; y >= 0; y--) {
                 int end = seamMap[y];
                 seamImage.setRGB(end, y, Color.RED.getRGB());
 
             }
-        } else if (mode == "height") {
+        } else if ("height".equals(mode)) {
             for (int y = width - 1; y >= 0; y--) {
                 int end = seamMap[y];
                 seamImage.setRGB(y, end, Color.RED.getRGB());
@@ -313,6 +344,9 @@ public class SeamCarving {
             }
         }
 
+        // Update raw_image
+        raw_image = newImage;
+
         // Save the seam map image
         try {
             File seamFile = new File("Code/img/new_image.jpg");
@@ -321,7 +355,7 @@ public class SeamCarving {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        raw_image = newImage;
+
         return newImage;
     }
 
@@ -349,16 +383,68 @@ public class SeamCarving {
             }
         }
 
+        // Update raw_image
+        raw_image = newImage;
+
         // Save the seam map image
         try {
             File seamFile = new File("Code/img/new_image.jpg");
             ImageIO.write(newImage, "jpg", seamFile);
-            // System.out.println("Seam removed successfully");
+//             System.out.println("Seam removed successfully");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        raw_image = newImage;
+
         return newImage;
     }
 
+
+    public class NonTouchableArea {
+        private Point topLeft;
+        private Point bottomRight;
+
+        public NonTouchableArea(Point topLeft, Point bottomRight) {
+            this.topLeft = topLeft;
+            this.bottomRight = bottomRight;
+        }
+
+        public boolean intersectsHorizontal(int x, int y) {
+            return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <= bottomRight.x;
+        }
+
+        public boolean intersectsVertical(int x, int y) {
+            return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <= bottomRight.x;
+        }
+    }
+
+    //规定了不可触碰方块的左上角和右下角的坐标
+    public NonTouchableArea nonTouchableArea;
+
+    // 检查缝隙是否与水平不可触碰区域相交
+    private boolean intersectsHorizontalNonTouchableArea(int[] seamMap) {
+        if (nonTouchableArea == null) {
+            return false;
+        }
+
+        for (int y = 0; y < seamMap.length; y++) {
+            if (nonTouchableArea.intersectsVertical(seamMap[y],y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 检查缝隙是否与垂直不可触碰区域相交
+    private boolean intersectsVerticalNonTouchableArea(int[] seamMap) {
+        if (nonTouchableArea == null) {
+            return false;
+        }
+
+        for (int x = 0; x < seamMap.length; x++) {
+            if (nonTouchableArea.intersectsHorizontal(x,seamMap[x])) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
