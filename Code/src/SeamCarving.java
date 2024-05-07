@@ -34,8 +34,8 @@ public class SeamCarving {
     public static void main(String[] args) {
         SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
         long startTime = System.currentTimeMillis();
-        sc.cutWidth(0.1);
-        sc.cutHeight(0.3);
+        sc.cutWidth(112);
+        sc.cutHeight(112);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
         sc.showSeamMap("height");
@@ -84,6 +84,14 @@ public class SeamCarving {
             newImage = new BufferedImage(width, height--, BufferedImage.TYPE_INT_RGB);
             newImage = removeColumnSeam(newImage, seamMap_h, width, height);
             long endTime = System.currentTimeMillis();
+            // Save the seam map image
+            try {
+                File seamFile = new File("Code/img/new_image.jpg");
+                ImageIO.write(newImage, "jpg", seamFile);
+                // System.out.println("Seam removed successfully");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             /* System.out.println(
                     "Time taken to remove height seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms") */;
         }
@@ -324,7 +332,7 @@ public class SeamCarving {
 
         // Save the seam map image
         try {
-            File seamFile = new File("seam_map.jpg");
+            File seamFile = new File("Code/img/seam_map.jpg");
             ImageIO.write(seamImage, "jpg", seamFile);
             // System.out.println("Seam map saved successfully");
         } catch (IOException e) {
