@@ -61,14 +61,26 @@ public class SeamCarving {
         ChangeWidth = n;
         BufferedImage newImage = currentImage;
         for (int i = 0; i < n; i++) {
-            long startTime = System.currentTimeMillis();
+            // long startTime = System.currentTimeMillis();
             EandMap result = calculateRowEnergy(newImage, width, height);
             seamMap_w = findMinPath(result.currentEnergy, result.map, height);
             newImage = new BufferedImage(width--, height, BufferedImage.TYPE_INT_RGB);
             newImage = removeWidthSeam(newImage, seamMap_w, width, height);
-            long endTime = System.currentTimeMillis();
-            /* System.out.println(
-                    "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms") */;
+            // long endTime = System.currentTimeMillis();
+
+            /*
+             * System.out.println(
+             * "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime
+             * - startTime) + "ms");
+             */
+        }
+        currentImage = newImage;
+        try {
+            File seamFile = new File("Code/img/new_image.jpg");
+            ImageIO.write(currentImage, "jpg", seamFile);
+            // System.out.println("Seam removed successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -82,22 +94,27 @@ public class SeamCarving {
         ChangeHeight = n;
         BufferedImage newImage = currentImage;
         for (int i = 0; i < n; i++) {
-            long startTime = System.currentTimeMillis();
+            // long startTime = System.currentTimeMillis();
             EandMap result = calculateColumnEnergy(newImage, width, height);
             seamMap_h = findMinPath(result.currentEnergy, result.map, width);
             newImage = new BufferedImage(width, height--, BufferedImage.TYPE_INT_RGB);
             newImage = removeColumnSeam(newImage, seamMap_h, width, height);
-            long endTime = System.currentTimeMillis();
+            // long endTime = System.currentTimeMillis();
             // Save the seam map image
-            try {
-                File seamFile = new File("Code/img/new_image.jpg");
-                ImageIO.write(newImage, "jpg", seamFile);
-                // System.out.println("Seam removed successfully");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            /* System.out.println(
-                    "Time taken to remove height seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms") */;
+
+            /*
+             * System.out.println(
+             * "Time taken to remove height seam " + String.valueOf(i + 1) + " : " +
+             * (endTime - startTime) + "ms");
+             */
+        }
+        currentImage = newImage;
+        try {
+            File seamFile = new File("Code/img/new_image.jpg");
+            ImageIO.write(newImage, "jpg", seamFile);
+            // System.out.println("Seam removed successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
