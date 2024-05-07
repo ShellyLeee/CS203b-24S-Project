@@ -5,10 +5,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 public class GUI extends JFrame{
+    private JLabel dimensionLabel;
     private String imgPath;
+    private String new_imgPath;
     public JPanel operateArea;
     public JButton Shrink;
     public JButton Expand;
@@ -22,6 +25,9 @@ public class GUI extends JFrame{
     public int ChangeWidth;
     public int ChangeHeight;
     public BufferedImage TargetImage;
+    public BufferedImage TargetImageCopy;
+
+    public BufferedImage NewImage;
 
 
     public GUI(int width, int height){
@@ -39,6 +45,7 @@ public class GUI extends JFrame{
         operateArea.setBackground(Color.LIGHT_GRAY);
         operateArea.setBounds(30, 40, 500, 500); // 设置矩形区域的位置和大小
         add(operateArea);
+        addDimensionLabel();
         //Button
         addSelectKeepButton();
         addSelectRemoveButton();
@@ -48,6 +55,13 @@ public class GUI extends JFrame{
         addRetryButton();
         addDownloadButton();
         this.setVisible(true);
+    }
+    private void addDimensionLabel(){
+        dimensionLabel = new JLabel("Dimension:");
+        dimensionLabel.setSize(200,20);
+        dimensionLabel.setLocation(550, 20);
+        add(dimensionLabel);
+        dimensionLabel.setVisible(true);
     }
 
     private void addImportButton(){
@@ -65,8 +79,14 @@ public class GUI extends JFrame{
                     imgPath = selectedFile.getAbsolutePath();
                     try {
                         TargetImage = ImageIO.read(selectedFile);
+                        TargetImageCopy = TargetImage;
+                        dimensionLabel.setText("Dimension: "+TargetImage.getWidth()+"x"+TargetImage.getHeight());
                         int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
                         int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
+
+                        if(maxWidth > TargetImage.getWidth() || maxHeight > TargetImage.getHeight()) {
+                        //可以加个判断：如果高/宽大于框的大小再缩。（不过也可以直接规定导入的图片不能大于xxx，否则缩）
+                        }
                         double widthRatio = (double) maxWidth / TargetImage.getWidth();
                         double heightRatio = (double) maxHeight / TargetImage.getHeight();
                         double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
@@ -119,8 +139,8 @@ public class GUI extends JFrame{
                 if (result == JOptionPane.OK_OPTION) {
                     try {
                         // 获取用户输入的宽度和高度
-                        ChangeWidth = Integer.parseInt(widthField.getText());
-                        ChangeHeight = Integer.parseInt(heightField.getText());
+                        ChangeWidth = TargetImage.getWidth() - Integer.parseInt(widthField.getText());
+                        ChangeHeight = TargetImage.getHeight() - Integer.parseInt(heightField.getText());
                         // 可以在这里进行一些额外的验证
                     } catch (NumberFormatException ex) {
                         JOptionPane.showMessageDialog(null, "Please enter valid numbers for Width and Height.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -130,7 +150,38 @@ public class GUI extends JFrame{
                 // Logic
                 SeamCarving sc = new SeamCarving(imgPath);
                 sc.cutWidth(ChangeWidth);
-                sc.cutHeight(ChangeHeight);
+                sc.cutHeight(ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                new_imgPath = "Code/img/new_image.jpg";
+                try {
+                    NewImage = ImageIO.read(new FileInputStream(new_imgPath));
+                    dimensionLabel.setText("Dimension: "+ NewImage.getWidth()+"x"+NewImage.getHeight());
+                    int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
+                    int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
+
+                    if(maxWidth > NewImage.getWidth() || maxHeight > NewImage.getHeight()) {
+                        //可以加个判断：如果高/宽大于框的大小再缩。（不过也可以直接规定导入的图片不能大于xxx，否则缩）
+                    }
+                    double widthRatio = (double) maxWidth / NewImage.getWidth();
+                    double heightRatio = (double) maxHeight / NewImage.getHeight();
+                    double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
+
+                    int newWidth = (int) (NewImage.getWidth() * ratio);
+                    int newHeight = (int) (NewImage.getHeight() * ratio);
+
+                    int x = (500 - newWidth) / 2;
+                    int y = (500 - newHeight) / 2;
+
+                    Image scaledImage = NewImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                    ImageIcon icon = new ImageIcon(scaledImage);
+                    JLabel imageLabel = new JLabel(icon);
+                    imageLabel.setBounds(x, y, newWidth, newHeight);
+                    operateArea.removeAll(); // 清空 OperateArea 区域
+                    operateArea.add(imageLabel); // 添加缩放后的图片
+                    operateArea.revalidate(); // 重新布局
+                    operateArea.repaint(); // 刷新显示
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
                 // 未完待续
             }
         });
@@ -203,6 +254,8 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    TargetImage = TargetImageCopy;
+                    dimensionLabel.setText("Dimension: "+TargetImage.getWidth()+"x"+TargetImage.getHeight());
                     int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
                     int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
                     double widthRatio = (double) maxWidth / TargetImage.getWidth();
@@ -241,7 +294,7 @@ public class GUI extends JFrame{
         Download.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (TargetImage != null) {
+                if (NewImage != null) {
                     JFileChooser fileChooser = new JFileChooser();
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int returnValue = fileChooser.showOpenDialog(null);
@@ -251,7 +304,7 @@ public class GUI extends JFrame{
                         File outputFile = new File(selectedFolder, fileName); // 创建新文件
                         try {
                             // 将图像写入新文件
-                            ImageIO.write(TargetImage, "jpg", outputFile);
+                            ImageIO.write(NewImage, "jpg", outputFile);
                             JOptionPane.showMessageDialog(null, "Image downloaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         } catch (IOException ex) {
                             ex.printStackTrace();
