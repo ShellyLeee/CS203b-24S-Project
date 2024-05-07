@@ -31,6 +31,9 @@ public class SeamCarving {
     public int ChangeWidth;
     public int ChangeHeight;
 
+    public double WidthRatio;
+    public double HeightRatio;
+
     public static void main(String[] args) {
         SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
         long startTime = System.currentTimeMillis();
@@ -70,6 +73,7 @@ public class SeamCarving {
     }
 
     public void cutWidth(double ratio) {
+        WidthRatio  = ratio;
         int n = (int) (width * ratio);
         cutWidth(n);
     }
@@ -98,6 +102,7 @@ public class SeamCarving {
     }
 
     public void cutHeight(double ratio) {
+        HeightRatio = ratio;
         int n = (int) (height * ratio);
         cutHeight(n);
     }
