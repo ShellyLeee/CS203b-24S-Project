@@ -20,21 +20,29 @@ public class SeamCarving {
     public int ChangeWidth;
     public int ChangeHeight;
 
+    Point topLeft;
+    Point topRight;
+    Point bottomLeft;
+    Point bottomRight;
+
     //选取左上角
 
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("输入0 正常SeamCarving 输入1 区域避免 输入2 区域强化");
-        int number = scanner.nextInt();
+        System.out.println("输入 0 0 正常SeamCarving 输入 左上坐标 右下坐标 区域避免 输入。。。 区域强化");
+        int topLeftX = scanner.nextInt();
+        int topLeftY = scanner.nextInt();
+        int bottomRightX = scanner.nextInt();
+        int bottomRightY = scanner.nextInt();
         SeamCarving sc = null; // 在 if-else 外部声明
 
 
         //输入0 正常seamcarving 输入1 区域避免 输入2 区域强化
-        if(number == 0) {
+        if(topLeftX == 0&&topLeftY == 0&& bottomRightX ==0&& bottomRightY ==0) {
             sc = new SeamCarving("Code/img/ha.jpg");
-        } else if (number == 1) {
-            sc = new SeamCarving("Code/img/ha.jpg", 0);
+        } else if (topLeftX != 0||topLeftY != 0|| bottomRightX !=0|| bottomRightY !=0) {
+            sc = new SeamCarving("Code/img/ha.jpg", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY));
         }
 
 
@@ -48,9 +56,9 @@ public class SeamCarving {
     public SeamCarving(String imagePath) {
         readImage(imagePath);
     }
-    public SeamCarving(String imagePath,int a) {
+    public SeamCarving(String imagePath,Point topLeft,  Point bottomRight) {
         readImage(imagePath);
-        nonTouchableArea=new NonTouchableArea(new Point(0,0),new Point(0,0));
+        nonTouchableArea=new NonTouchableArea(topLeft,bottomRight);
     }
 
     public void showSeamMap(String mode) {
@@ -135,12 +143,14 @@ public class SeamCarving {
             e.printStackTrace();
         }
     }
-
+//画的为纵向seam
     private int[] calculateRowEnergy(BufferedImage image, int w, int h) {
         // Create a 2D array to store the energy values
         double[] current_energy = new double[w];
         double[] pre_energy = new double[w];
         int[][] seamingMap = new int[h][w];
+        //
+
         // Calculate the energy of each pixel
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
