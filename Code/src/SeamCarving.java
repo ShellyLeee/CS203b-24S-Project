@@ -8,7 +8,18 @@ import javax.imageio.ImageIO;
 
 public class SeamCarving {
 
-    BufferedImage raw_image;
+    private class EandMap {
+        public double[] currentEnergy;
+        public int[][] map;
+
+        public EandMap(double[] energy, int[][] path) {
+            this.currentEnergy = energy;
+            this.map = path;
+        }
+    }
+
+    BufferedImage rawImage;
+    BufferedImage currentImage;
     int width;
     int height;
     int[][] R;
@@ -23,14 +34,14 @@ public class SeamCarving {
     public static void main(String[] args) {
         SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
         long startTime = System.currentTimeMillis();
-        sc.cutWidth(100);
-        sc.cutHeight(200);
+        sc.cutWidth(0.1);
+        sc.cutHeight(0.3);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
         sc.showSeamMap("height");
     }
 
-    //修改：private改成Public影响大么。。忘记相关约束了
+    // 修改：private改成Public影响大么。。忘记相关约束了
     public SeamCarving(String imagePath) {
         readImage(imagePath);
     }
@@ -45,30 +56,42 @@ public class SeamCarving {
 
     public void cutWidth(int n) {
         ChangeWidth = n;
-        BufferedImage newImage = raw_image;
+        BufferedImage newImage = currentImage;
         for (int i = 0; i < n; i++) {
             long startTime = System.currentTimeMillis();
-            int[] seamMap = calculateRowEnergy(newImage, width, height);
+            EandMap result = calculateRowEnergy(newImage, width, height);
+            seamMap_w = findMinPath(result.currentEnergy, result.map, height);
             newImage = new BufferedImage(width--, height, BufferedImage.TYPE_INT_RGB);
-            newImage = removeWidthSeam(newImage, seamMap, width, height);
+            newImage = removeWidthSeam(newImage, seamMap_w, width, height);
             long endTime = System.currentTimeMillis();
-            System.out.println(
-                    "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms");
+            /* System.out.println(
+                    "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms") */;
         }
+    }
+
+    public void cutWidth(double ratio) {
+        int n = (int) (width * ratio);
+        cutWidth(n);
     }
 
     public void cutHeight(int n) {
         ChangeHeight = n;
-        BufferedImage newImage = raw_image;
+        BufferedImage newImage = currentImage;
         for (int i = 0; i < n; i++) {
             long startTime = System.currentTimeMillis();
-            int[] seamMap = calculateColumnEnergy(newImage, width, height);
+            EandMap result = calculateColumnEnergy(newImage, width, height);
+            seamMap_h = findMinPath(result.currentEnergy, result.map, width);
             newImage = new BufferedImage(width, height--, BufferedImage.TYPE_INT_RGB);
-            newImage = removeColumnSeam(newImage, seamMap, width, height);
+            newImage = removeColumnSeam(newImage, seamMap_h, width, height);
             long endTime = System.currentTimeMillis();
-            System.out.println(
-                    "Time taken to remove height seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms");
+            /* System.out.println(
+                    "Time taken to remove height seam " + String.valueOf(i + 1) + " : " + (endTime - startTime) + "ms") */;
         }
+    }
+
+    public void cutHeight(double ratio) {
+        int n = (int) (height * ratio);
+        cutHeight(n);
     }
 
     public void readImage(String path) {
@@ -77,7 +100,8 @@ public class SeamCarving {
             File imageFile = new File(path);
             FileInputStream fis = new FileInputStream(imageFile);
             BufferedImage image = ImageIO.read(fis);
-            raw_image = image;
+            rawImage = image;
+            currentImage = image;
             fis.close();
 
             // Get the width and height of the image
@@ -106,7 +130,7 @@ public class SeamCarving {
         }
     }
 
-    private int[] calculateRowEnergy(BufferedImage image, int w, int h) {
+    private EandMap calculateRowEnergy(BufferedImage image, int w, int h) {
         // Create a 2D array to store the energy values
         double[] current_energy = new double[w];
         double[] pre_energy = new double[w];
@@ -164,18 +188,22 @@ public class SeamCarving {
         }
 
         // System.out.println("Energy calculated successfully");
-
+        EandMap result = new EandMap(current_energy, seamingMap);
+        return result;
         // Return the seam path
-        seamMap_w = new int[h];
-        int minIndex = (int) selectPath(pre_energy, seamingMap[0])[1];
-        for (int i = h - 1; i >= 0; i--) {
-            seamMap_w[i] = minIndex;
-            minIndex = seamingMap[i][minIndex];
-        }
-        return seamMap_w;
+        /*
+         * seamMap_w = new int[h];
+         * int minIndex = (int) selectPath(pre_energy, seamingMap[0])[1];
+         * for (int i = h - 1; i >= 0; i--) {
+         * seamMap_w[i] = minIndex;
+         * minIndex = seamingMap[i][minIndex];
+         * }
+         * return seamMap_w;
+         */
+
     }
 
-    private int[] calculateColumnEnergy(BufferedImage image, int w, int h) {
+    private EandMap calculateColumnEnergy(BufferedImage image, int w, int h) {
 
         // Create a 2D array to store the energy values
         double[] current_energy = new double[h];
@@ -234,15 +262,19 @@ public class SeamCarving {
         }
 
         // System.out.println("Energy calculated successfully");
-
+        EandMap result = new EandMap(current_energy, seamingMap);
+        return result;
         // Return the seam path
-        seamMap_h = new int[w];
-        int minIndex = (int) selectPath(pre_energy, seamingMap[0])[1];
-        for (int i = w - 1; i >= 0; i--) {
-            seamMap_h[i] = minIndex;
-            minIndex = seamingMap[i][minIndex];
-        }
-        return seamMap_h;
+        /*
+         * seamMap_h = new int[w];
+         * int minIndex = (int) selectPath(pre_energy, seamingMap[0])[1];
+         * for (int i = w - 1; i >= 0; i--) {
+         * seamMap_h[i] = minIndex;
+         * minIndex = seamingMap[i][minIndex];
+         * }
+         * return seamMap_h;
+         */
+
     }
 
     private double[] selectPath(double[] pre_energy, int[] indexes) {
@@ -260,10 +292,20 @@ public class SeamCarving {
         return best;
     }
 
+    private int[] findMinPath(double[] energy, int[][] map, int length) {
+        int[] seamMap = new int[length];
+        int minIndex = (int) selectPath(energy, map[0])[1];
+        for (int i = length - 1; i >= 0; i--) {
+            seamMap[i] = minIndex;
+            minIndex = map[i][minIndex];
+        }
+        return seamMap;
+    }
+
     private void showSeamMap(int[] seamMap, String mode) {
         // Create a new image to store the seam map
         BufferedImage seamImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        seamImage = raw_image;
+        seamImage = rawImage;
 
         if (mode == "width") {
             // Iterate over each pixel and set the color based on the seam map
@@ -282,7 +324,7 @@ public class SeamCarving {
 
         // Save the seam map image
         try {
-            File seamFile = new File("Code/img/seam_map.jpg");
+            File seamFile = new File("seam_map.jpg");
             ImageIO.write(seamImage, "jpg", seamFile);
             // System.out.println("Seam map saved successfully");
         } catch (IOException e) {
@@ -299,7 +341,7 @@ public class SeamCarving {
         for (int y = 0; y < height; y++) {
             int end = seamMap[y];
             for (int x = 0; x < width + 1; x++) {
-                Color color = new Color(raw_image.getRGB(x, y));
+                Color color = new Color(rawImage.getRGB(x, y));
                 if (x < end) {
                     R[y][x] = color.getRed();
                     G[y][x] = color.getGreen();
@@ -314,15 +356,7 @@ public class SeamCarving {
             }
         }
 
-        // Save the seam map image
-        try {
-            File seamFile = new File("Code/img/new_image.jpg");
-            ImageIO.write(newImage, "jpg", seamFile);
-            // System.out.println("Seam removed successfully");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        raw_image = newImage;
+        rawImage = newImage;
         return newImage;
     }
 
@@ -335,7 +369,7 @@ public class SeamCarving {
         for (int y = 0; y < width; y++) {
             int end = seamMap[y];
             for (int x = 0; x < height + 1; x++) {
-                Color color = new Color(raw_image.getRGB(y, x));
+                Color color = new Color(rawImage.getRGB(y, x));
                 if (x < end) {
                     R[x][y] = color.getRed();
                     G[x][y] = color.getGreen();
@@ -350,15 +384,7 @@ public class SeamCarving {
             }
         }
 
-        // Save the seam map image
-        try {
-            File seamFile = new File("Code/img/new_image.jpg");
-            ImageIO.write(newImage, "jpg", seamFile);
-            // System.out.println("Seam removed successfully");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        raw_image = newImage;
+        rawImage = newImage;
         return newImage;
     }
 
