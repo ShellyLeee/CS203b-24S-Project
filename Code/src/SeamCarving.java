@@ -3,8 +3,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
+import java.awt.Point;
 import javax.imageio.ImageIO;
+import java.util.Scanner;
 
 public class SeamCarving {
 
@@ -34,11 +35,25 @@ public class SeamCarving {
     public double WidthRatio;
     public double HeightRatio;
 
+    //选取左上角
     public static void main(String[] args) {
-        SeamCarving sc = new SeamCarving("Code/img/image_1.jpg");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("输入0 正常SeamCarving 输入1 区域避免 输入2 区域强化");
+        int number = scanner.nextInt();
+        SeamCarving sc = null; // 在 if-else 外部声明
+
+
+        //输入0 正常seamcarving 输入1 区域避免 输入2 区域强化
+        if(number == 0) {
+            sc = new SeamCarving("Code/img/ha.jpg");
+        } else if (number == 1) {
+            sc = new SeamCarving("Code/img/ha.jpg", 0);
+        }
+
+
         long startTime = System.currentTimeMillis();
-        sc.cutWidth(112);
-        sc.cutHeight(112);
+        sc.cutHeight(200);
+        sc.cutWidth(100);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
         sc.showSeamMap("height");
@@ -47,6 +62,11 @@ public class SeamCarving {
     // 修改：private改成Public影响大么。。忘记相关约束了
     public SeamCarving(String imagePath) {
         readImage(imagePath);
+    }
+
+    public SeamCarving(String imagePath,int a) {
+        readImage(imagePath);
+        nonTouchableArea=new NonTouchableArea(new Point(0,0),new Point(0,0));
     }
 
     public void showSeamMap(String mode) {
@@ -416,6 +436,54 @@ public class SeamCarving {
 
         rawImage = newImage;
         return newImage;
+    }
+
+    public class NonTouchableArea {
+        private Point topLeft;
+        private Point bottomRight;
+
+        public NonTouchableArea(Point topLeft, Point bottomRight) {
+            this.topLeft = topLeft;
+            this.bottomRight = bottomRight;
+        }
+
+        public boolean intersectsHorizontal(int x, int y) {
+            return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <= bottomRight.x;
+        }
+
+        public boolean intersectsVertical(int x, int y) {
+            return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <= bottomRight.x;
+        }
+    }
+    //规定了不可触碰方块的左上角和右下角的坐标
+    public NonTouchableArea nonTouchableArea;
+
+    // 检查缝隙是否与水平不可触碰区域相交
+    private boolean intersectsHorizontalNonTouchableArea(int[] seamMap) {
+        if (nonTouchableArea == null) {
+            return false;
+        }
+
+        for (int y = 0; y < seamMap.length; y++) {
+            if (nonTouchableArea.intersectsVertical(seamMap[y],y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 检查缝隙是否与垂直不可触碰区域相交
+    private boolean intersectsVerticalNonTouchableArea(int[] seamMap) {
+        if (nonTouchableArea == null) {
+            return false;
+        }
+
+        for (int x = 0; x < seamMap.length; x++) {
+            if (nonTouchableArea.intersectsHorizontal(x,seamMap[x])) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
