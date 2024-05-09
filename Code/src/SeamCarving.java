@@ -38,16 +38,19 @@ public class SeamCarving {
     //选取左上角
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("输入0 正常SeamCarving 输入1 区域避免 输入2 区域强化");
-        int number = scanner.nextInt();
+        System.out.println("输入 0 0 0 0正常SeamCarving 输入 左上右下xy坐标 区域避免 输入。。。 区域强化");
+        int topLeftX = scanner.nextInt();
+        int topLeftY = scanner.nextInt();
+        int bottomRightX = scanner.nextInt();
+        int bottomRightY = scanner.nextInt();
         SeamCarving sc = null; // 在 if-else 外部声明
 
 
         //输入0 正常seamcarving 输入1 区域避免 输入2 区域强化
-        if(number == 0) {
+        if(topLeftX == 0&&topLeftY == 0&& bottomRightX ==0&& bottomRightY ==0) {
             sc = new SeamCarving("Code/img/ha.jpg");
-        } else if (number == 1) {
-            sc = new SeamCarving("Code/img/ha.jpg", 0);
+        } else if (topLeftX != 0||topLeftY != 0|| bottomRightX !=0|| bottomRightY !=0) {
+            sc = new SeamCarving("Code/img/ha.jpg", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY));
         }
 
 
@@ -58,17 +61,13 @@ public class SeamCarving {
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
         sc.showSeamMap("height");
     }
-
-    // 修改：private改成Public影响大么。。忘记相关约束了
     public SeamCarving(String imagePath) {
         readImage(imagePath);
     }
-
-    public SeamCarving(String imagePath,int a) {
+    public SeamCarving(String imagePath,Point topLeft,  Point bottomRight) {
         readImage(imagePath);
-        nonTouchableArea=new NonTouchableArea(new Point(0,0),new Point(0,0));
+        nonTouchableArea=new NonTouchableArea(topLeft,bottomRight);
     }
-
     public void showSeamMap(String mode) {
         if (mode == "width") {
             showSeamMap(seamMap_w, mode);
@@ -487,3 +486,4 @@ public class SeamCarving {
     }
 
 }
+
