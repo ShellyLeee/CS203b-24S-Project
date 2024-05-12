@@ -452,6 +452,14 @@ public class SeamCarving {
             }
         }
 
+        //
+        if(topLeft!=null && bottomRight!=null){
+            int selectedY = (topLeft.y+bottomRight.y)/2;
+            if(seamMap[selectedY]<topLeft.x+1){
+                topLeft.x--;
+                bottomRight.x--;
+            }
+        }
         rawImage = newImage;
         return newImage;
     }
@@ -477,6 +485,14 @@ public class SeamCarving {
                     B[x - 1][y] = color.getBlue();
                     newImage.setRGB(y, x - 1, color.getRGB());
                 }
+            }
+        }
+        //
+        if(topLeft!=null && bottomRight!=null){
+            int selectedX = (topLeft.x+bottomRight.x)/2;
+            if(seamMap[selectedX]<topLeft.y+1){
+                topLeft.y--;
+                bottomRight.y--;
             }
         }
 
