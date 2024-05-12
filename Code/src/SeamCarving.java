@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.awt.Point;
 import javax.imageio.ImageIO;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class SeamCarving {
@@ -38,22 +39,27 @@ public class SeamCarving {
     private Point topLeft;
     private Point bottomRight;
 
+    public String MODE;
+
     //选取左上角
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("输入 0 0 0 0正常SeamCarving 输入 左上右下xy坐标 区域避免 输入。。。 区域强化");
+        System.out.println("输入 0 0 0 0 a 正常SeamCarving;输入 左上右下xy坐标 b 区域避免 输入 左上右下xy坐标 c 区域强化");
         int topLeftX = scanner.nextInt();
         int topLeftY = scanner.nextInt();
         int bottomRightX = scanner.nextInt();
         int bottomRightY = scanner.nextInt();
+        String mode = scanner.next();
         SeamCarving sc = null; // 在 if-else 外部声明
 
 
-        //输入0 正常seamcarving 输入1 区域避免 输入2 区域强化
-        if(topLeftX == 0&&topLeftY == 0&& bottomRightX ==0&& bottomRightY ==0) {
-            sc = new SeamCarving("Code/img/111.png");
-        } else if (topLeftX != 0||topLeftY != 0|| bottomRightX !=0|| bottomRightY !=0) {
-            sc = new SeamCarving("Code/img/111.png", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY));
+        //输入 0 0 0 0 a 正常SeamCarving;输入 左上右下xy坐标 b 区域避免 输入 左上右下xy坐标 c 区域强化
+        if(Objects.equals(mode, "a")) {
+            sc = new SeamCarving("Code/img/eng.jpg");
+        } else if (Objects.equals(mode, "b")) {
+            sc = new SeamCarving("Code/img/eng.jpg", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY));
+        } else if (Objects.equals(mode, "c")) {
+            sc = new SeamCarving("Code/img/eng.jpg", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY),1);
         }
 
 
@@ -72,7 +78,13 @@ public class SeamCarving {
         readImage(imagePath);
         this.topLeft=topLeft;
         this.bottomRight=bottomRight;
-//        nonTouchableArea=new NonTouchableArea(topLeft,bottomRight);
+        this.MODE="b";
+    }
+    public SeamCarving(String imagePath,Point topLeft,Point bottomRight,int a) {
+        readImage(imagePath);
+        this.topLeft=topLeft;
+        this.bottomRight=bottomRight;
+        this.MODE="c";
     }
     public void showSeamMap(String mode) {
         if (mode == "width") {
@@ -229,10 +241,8 @@ public class SeamCarving {
                     continue;
                 }
                 // select minimus energy path from the last row
-//                if(pre_energy[x]>1000000000) {
-//                    System.out.println(pre_energy[x]);
-//                }
-                if(topLeft!=null&&bottomRight!=null) {
+
+                if(Objects.equals(MODE, "b")) {
                     if(topLeft.x<=x && bottomRight.x>=x && topLeft.y<=y && bottomRight.y>=y){
                         pre_energy[x]=10*pre_energy[x]+100000000;
                     }
@@ -241,6 +251,18 @@ public class SeamCarving {
                     }
                     if(topLeft.x<=x+1 && bottomRight.x>=x+1 && topLeft.y<=y && bottomRight.y>=y){
                         pre_energy[x+1]=10*pre_energy[x+1]+100000000;
+                    }
+                }
+
+                if(Objects.equals(MODE, "c")) {
+                    if(topLeft.x<=x && bottomRight.x>=x && topLeft.y<=y && bottomRight.y>=y){
+                        pre_energy[x]=Math.sqrt(pre_energy[x]);
+                    }
+                    if(topLeft.x<=x-1 && bottomRight.x>=x-1 && topLeft.y<=y && bottomRight.y>=y){
+                        pre_energy[x-1]=Math.sqrt(pre_energy[x-1]);
+                    }
+                    if(topLeft.x<=x+1 && bottomRight.x>=x+1 && topLeft.y<=y && bottomRight.y>=y){
+                        pre_energy[x+1]=Math.sqrt(pre_energy[x+1]);
                     }
                 }
 
@@ -322,10 +344,8 @@ public class SeamCarving {
 
                 // select minimus energy path from the last row
 
-//                if(pre_energy[x]>1000000000) {
-//                    System.out.println(pre_energy[x]);
-//                }
-                if(topLeft!=null&&bottomRight!=null) {
+
+                if(Objects.equals(MODE, "b")) {
                     if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x && bottomRight.y>=x){
                         pre_energy[x]=10*pre_energy[x]+100000000;
                     }
@@ -336,6 +356,19 @@ public class SeamCarving {
                         pre_energy[x+1]=10*pre_energy[x+1]+100000000;
                     }
                 }
+
+                if(Objects.equals(MODE, "c")) {
+                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x && bottomRight.y>=x){
+                        pre_energy[x]=Math.sqrt(pre_energy[x]);
+                    }
+                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x-1 && bottomRight.y>=x-1){
+                        pre_energy[x-1]=Math.sqrt(pre_energy[x-1]);
+                    }
+                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x+1 && bottomRight.y>=x+1){
+                        pre_energy[x+1]=Math.sqrt(pre_energy[x+1]);
+                    }
+                }
+
                 double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
                 int[] indexes = { x - 1, x, x + 1 };
                 double[] best = selectPath(pre_energy_part, indexes);
