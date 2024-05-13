@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.awt.Point;
 import javax.imageio.ImageIO;
+
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -41,7 +42,7 @@ public class SeamCarving {
 
     public String MODE;
 
-    //选取左上角
+    // 选取左上角
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         System.out.println("输入 0 0 0 0 a 正常SeamCarving;输入 左上右下xy坐标 b 区域避免 输入 左上右下xy坐标 c 区域强化");
@@ -52,40 +53,41 @@ public class SeamCarving {
         String mode = scanner.next();
         SeamCarving sc = null; // 在 if-else 外部声明
 
-
-        //输入 0 0 0 0 a 正常SeamCarving;输入 左上右下xy坐标 b 区域避免 输入 左上右下xy坐标 c 区域强化
-        if(Objects.equals(mode, "a")) {
+        // 输入 0 0 0 0 a 正常SeamCarving;输入 左上右下xy坐标 b 区域避免 输入 左上右下xy坐标 c 区域强化
+        if (Objects.equals(mode, "a")) {
             sc = new SeamCarving("Code/img/eng.jpg");
         } else if (Objects.equals(mode, "b")) {
-            sc = new SeamCarving("Code/img/eng.jpg", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY));
+            sc = new SeamCarving("Code/img/eng.jpg", new Point(topLeftX, topLeftY),
+                    new Point(bottomRightX, bottomRightY));
         } else if (Objects.equals(mode, "c")) {
-            sc = new SeamCarving("Code/img/eng.jpg", new Point(topLeftX,topLeftY),new Point(bottomRightX,bottomRightY),1);
+            sc = new SeamCarving("Code/img/eng.jpg", new Point(topLeftX, topLeftY),
+                    new Point(bottomRightX, bottomRightY), 1);
         }
 
-
         long startTime = System.currentTimeMillis();
-        sc.cutHeight(100);
-        sc.cutWidth(200);
+        sc.cutWidth(20);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
-        sc.showSeamMap("height");
-        sc.showSeamMap("width");
     }
+
     public SeamCarving(String imagePath) {
         readImage(imagePath);
     }
-    public SeamCarving(String imagePath,Point topLeft,Point bottomRight) {
+
+    public SeamCarving(String imagePath, Point topLeft, Point bottomRight) {
         readImage(imagePath);
-        this.topLeft=topLeft;
-        this.bottomRight=bottomRight;
-        this.MODE="b";
+        this.topLeft = topLeft;
+        this.bottomRight = bottomRight;
+        this.MODE = "b";
     }
-    public SeamCarving(String imagePath,Point topLeft,Point bottomRight,int a) {
+
+    public SeamCarving(String imagePath, Point topLeft, Point bottomRight, int a) {
         readImage(imagePath);
-        this.topLeft=topLeft;
-        this.bottomRight=bottomRight;
-        this.MODE="c";
+        this.topLeft = topLeft;
+        this.bottomRight = bottomRight;
+        this.MODE = "c";
     }
+
     public void showSeamMap(String mode) {
         if (mode == "width") {
             showSeamMap(seamMap_w, mode);
@@ -98,22 +100,21 @@ public class SeamCarving {
         ChangeWidth = n;
         BufferedImage newImage = currentImage;
         for (int i = 0; i < n; i++) {
-             long startTime = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
             EandMap result = calculateRowEnergy(newImage, width, height);
             seamMap_w = findMinPath(result.currentEnergy, result.map, height);
             newImage = new BufferedImage(width--, height, BufferedImage.TYPE_INT_RGB);
             newImage = removeWidthSeam(newImage, seamMap_w, width, height);
-             long endTime = System.currentTimeMillis();
+            long endTime = System.currentTimeMillis();
 
-
-              System.out.println(
-             "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime
-             - startTime) + "ms");
+            /*
+             * System.out.println(
+             * "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime
+             * - startTime) + "ms");
+             */
 
         }
         currentImage = newImage;
-
-
 
         try {
             File seamFile = new File("Code/img/new_image.jpg");
@@ -125,7 +126,7 @@ public class SeamCarving {
     }
 
     public void cutWidth(double ratio) {
-        WidthRatio  = ratio;
+        WidthRatio = ratio;
         int n = (int) (width * ratio);
         cutWidth(n);
     }
@@ -134,23 +135,21 @@ public class SeamCarving {
         ChangeHeight = n;
         BufferedImage newImage = currentImage;
         for (int i = 0; i < n; i++) {
-             long startTime = System.currentTimeMillis();
+            long startTime = System.currentTimeMillis();
             EandMap result = calculateColumnEnergy(newImage, width, height);
             seamMap_h = findMinPath(result.currentEnergy, result.map, width);
             newImage = new BufferedImage(width, height--, BufferedImage.TYPE_INT_RGB);
             newImage = removeColumnSeam(newImage, seamMap_h, width, height);
-             long endTime = System.currentTimeMillis();
+            long endTime = System.currentTimeMillis();
             // Save the seam map image
-
-
-              System.out.println(
-              "Time taken to remove height seam " + String.valueOf(i + 1) + " : " +
-              (endTime - startTime) + "ms");
+            /*
+             * System.out.println(
+             * "Time taken to remove height seam " + String.valueOf(i + 1) + " : " +
+             * (endTime - startTime) + "ms");
+             */
 
         }
         currentImage = newImage;
-
-
 
         try {
             File seamFile = new File("Code/img/new_image.jpg");
@@ -165,6 +164,52 @@ public class SeamCarving {
         HeightRatio = ratio;
         int n = (int) (height * ratio);
         cutHeight(n);
+    }
+
+    public void expandWidth(int n) {
+        BufferedImage newImage = currentImage;
+        EandMap result = calculateRowEnergy(newImage, width, height);
+        int[] indexes = myTool.sortIndex(result.currentEnergy);
+        int[][] seamMaps = findNMinPath(indexes, result.map, n, height);
+        showSeamMap(seamMaps, n, "width");
+        newImage = addRowSeam(seamMaps, n);
+
+        currentImage = newImage;
+        try {
+            File seamFile = new File("Code/img/new_image.jpg");
+            ImageIO.write(currentImage, "jpg", seamFile);
+            // System.out.println("Seam removed successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void expandWidth(double ratio) {
+        int n = (int) (width * ratio);
+        expandWidth(n);
+    }
+
+    public void expandHeight(int n) {
+        BufferedImage newImage = currentImage;
+        EandMap result = calculateColumnEnergy(newImage, width, height);
+        int[] indexes = myTool.sortIndex(result.currentEnergy);
+        int[][] seamMaps = findNMinPath(indexes, result.map, n, width);
+        showSeamMap(seamMaps, n, "height");
+        newImage = addColumnSeam(seamMaps, n);
+
+        currentImage = newImage;
+        try {
+            File seamFile = new File("Code/img/new_image.jpg");
+            ImageIO.write(currentImage, "jpg", seamFile);
+            // System.out.println("Seam removed successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void expandHeight(double ratio) {
+        int n = (int) (height * ratio);
+        expandHeight(n);
     }
 
     public void readImage(String path) {
@@ -203,9 +248,7 @@ public class SeamCarving {
         }
     }
 
-
-
-    //calcukateRow 形成竖向的线
+    // calcukateRow 形成竖向的线
     private EandMap calculateRowEnergy(BufferedImage image, int w, int h) {
         // Create a 2D array to store the energy values
         double[] current_energy = new double[w];
@@ -242,30 +285,29 @@ public class SeamCarving {
                 }
                 // select minimus energy path from the last row
 
-                if(Objects.equals(MODE, "b")) {
-                    if(topLeft.x<=x && bottomRight.x>=x && topLeft.y<=y && bottomRight.y>=y){
-                        pre_energy[x]=10*pre_energy[x]+100000000;
+                if (Objects.equals(MODE, "b")) {
+                    if (topLeft.x <= x && bottomRight.x >= x && topLeft.y <= y && bottomRight.y >= y) {
+                        pre_energy[x] = 10 * pre_energy[x] + 100000000;
                     }
-                    if(topLeft.x<=x-1 && bottomRight.x>=x-1 && topLeft.y<=y && bottomRight.y>=y){
-                        pre_energy[x-1]=10*pre_energy[x-1]+100000000;
+                    if (topLeft.x <= x - 1 && bottomRight.x >= x - 1 && topLeft.y <= y && bottomRight.y >= y) {
+                        pre_energy[x - 1] = 10 * pre_energy[x - 1] + 100000000;
                     }
-                    if(topLeft.x<=x+1 && bottomRight.x>=x+1 && topLeft.y<=y && bottomRight.y>=y){
-                        pre_energy[x+1]=10*pre_energy[x+1]+100000000;
-                    }
-                }
-
-                if(Objects.equals(MODE, "c")) {
-                    if(topLeft.x<=x && bottomRight.x>=x && topLeft.y<=y && bottomRight.y>=y){
-                        pre_energy[x]=Math.sqrt(pre_energy[x]);
-                    }
-                    if(topLeft.x<=x-1 && bottomRight.x>=x-1 && topLeft.y<=y && bottomRight.y>=y){
-                        pre_energy[x-1]=Math.sqrt(pre_energy[x-1]);
-                    }
-                    if(topLeft.x<=x+1 && bottomRight.x>=x+1 && topLeft.y<=y && bottomRight.y>=y){
-                        pre_energy[x+1]=Math.sqrt(pre_energy[x+1]);
+                    if (topLeft.x <= x + 1 && bottomRight.x >= x + 1 && topLeft.y <= y && bottomRight.y >= y) {
+                        pre_energy[x + 1] = 10 * pre_energy[x + 1] + 100000000;
                     }
                 }
 
+                if (Objects.equals(MODE, "c")) {
+                    if (topLeft.x <= x && bottomRight.x >= x && topLeft.y <= y && bottomRight.y >= y) {
+                        pre_energy[x] = Math.sqrt(pre_energy[x]);
+                    }
+                    if (topLeft.x <= x - 1 && bottomRight.x >= x - 1 && topLeft.y <= y && bottomRight.y >= y) {
+                        pre_energy[x - 1] = Math.sqrt(pre_energy[x - 1]);
+                    }
+                    if (topLeft.x <= x + 1 && bottomRight.x >= x + 1 && topLeft.y <= y && bottomRight.y >= y) {
+                        pre_energy[x + 1] = Math.sqrt(pre_energy[x + 1]);
+                    }
+                }
 
                 double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
                 int[] indexes = { x - 1, x, x + 1 };
@@ -304,8 +346,7 @@ public class SeamCarving {
 
     }
 
-
-    //calculateColumn 形成横向的线
+    // calculateColumn 形成横向的线
     private EandMap calculateColumnEnergy(BufferedImage image, int w, int h) {
 
         // Create a 2D array to store the energy values
@@ -344,28 +385,27 @@ public class SeamCarving {
 
                 // select minimus energy path from the last row
 
-
-                if(Objects.equals(MODE, "b")) {
-                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x && bottomRight.y>=x){
-                        pre_energy[x]=10*pre_energy[x]+100000000;
+                if (Objects.equals(MODE, "b")) {
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
+                        pre_energy[x] = 10 * pre_energy[x] + 100000000;
                     }
-                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x-1 && bottomRight.y>=x-1){
-                        pre_energy[x-1]=10*pre_energy[x-1]+100000000;
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x - 1 && bottomRight.y >= x - 1) {
+                        pre_energy[x - 1] = 10 * pre_energy[x - 1] + 100000000;
                     }
-                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x+1 && bottomRight.y>=x+1){
-                        pre_energy[x+1]=10*pre_energy[x+1]+100000000;
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x + 1 && bottomRight.y >= x + 1) {
+                        pre_energy[x + 1] = 10 * pre_energy[x + 1] + 100000000;
                     }
                 }
 
-                if(Objects.equals(MODE, "c")) {
-                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x && bottomRight.y>=x){
-                        pre_energy[x]=Math.sqrt(pre_energy[x]);
+                if (Objects.equals(MODE, "c")) {
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
+                        pre_energy[x] = Math.sqrt(pre_energy[x]);
                     }
-                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x-1 && bottomRight.y>=x-1){
-                        pre_energy[x-1]=Math.sqrt(pre_energy[x-1]);
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x - 1 && bottomRight.y >= x - 1) {
+                        pre_energy[x - 1] = Math.sqrt(pre_energy[x - 1]);
                     }
-                    if(topLeft.x<=y && bottomRight.x>=y && topLeft.y<=x+1 && bottomRight.y>=x+1){
-                        pre_energy[x+1]=Math.sqrt(pre_energy[x+1]);
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x + 1 && bottomRight.y >= x + 1) {
+                        pre_energy[x + 1] = Math.sqrt(pre_energy[x + 1]);
                     }
                 }
 
@@ -431,6 +471,18 @@ public class SeamCarving {
         return seamMap;
     }
 
+    private int[][] findNMinPath(int[] indexes, int[][] map, int n, int length) {
+        int[][] seamMaps = new int[length][n];
+        for (int i = 0; i < n; i++) {
+            int minIndex = indexes[i];
+            for (int j = length - 1; j >= 0; j--) {
+                seamMaps[j][i] = minIndex;
+                minIndex = map[j][minIndex];
+            }
+        }
+        return seamMaps;
+    }
+
     private void showSeamMap(int[] seamMap, String mode) {
         // Create a new image to store the seam map
         BufferedImage seamImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -449,6 +501,44 @@ public class SeamCarving {
                 seamImage.setRGB(y, end, Color.RED.getRGB());
 
             }
+        }
+
+        // Save the seam map image
+        try {
+            File seamFile = new File("Code/img/seam_map.jpg");
+            ImageIO.write(seamImage, "jpg", seamFile);
+            // System.out.println("Seam map saved successfully");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showSeamMap(int[][] seamMaps, int n, String mode) {
+        // Create a new image to store the seam map
+        BufferedImage seamImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                seamImage.setRGB(x, y, rawImage.getRGB(x, y));
+            }
+        }
+
+        if (mode == "width") {
+            for (int i = 0; i < n; i++) {
+                // Iterate over each pixel and set the color based on the seam map
+                for (int y = height - 1; y >= 0; y--) {
+                    int end = seamMaps[y][i];
+                    seamImage.setRGB(end, y, Color.RED.getRGB());
+                }
+            }
+        } else if (mode == "height") {
+            for (int i = 0; i < n; i++) {
+                // Iterate over each pixel and set the color based on the seam map
+                for (int y = width - 1; y >= 0; y--) {
+                    int end = seamMaps[y][i];
+                    seamImage.setRGB(y, end, Color.RED.getRGB());
+                }
+            }
+
         }
 
         // Save the seam map image
@@ -486,9 +576,9 @@ public class SeamCarving {
         }
 
         //
-        if(topLeft!=null && bottomRight!=null){
-            int selectedY = (topLeft.y+bottomRight.y)/2;
-            if(seamMap[selectedY]<topLeft.x+1){
+        if (topLeft != null && bottomRight != null) {
+            int selectedY = (topLeft.y + bottomRight.y) / 2;
+            if (seamMap[selectedY] < topLeft.x + 1) {
                 topLeft.x--;
                 bottomRight.x--;
             }
@@ -521,9 +611,9 @@ public class SeamCarving {
             }
         }
         //
-        if(topLeft!=null && bottomRight!=null){
-            int selectedX = (topLeft.x+bottomRight.x)/2;
-            if(seamMap[selectedX]<topLeft.y+1){
+        if (topLeft != null && bottomRight != null) {
+            int selectedX = (topLeft.x + bottomRight.x) / 2;
+            if (seamMap[selectedX] < topLeft.y + 1) {
                 topLeft.y--;
                 bottomRight.y--;
             }
@@ -533,45 +623,154 @@ public class SeamCarving {
         return newImage;
     }
 
-//    public class NonTouchableArea {
-//        private Point topLeft;
-//        private Point bottomRight;
-//
-//        public NonTouchableArea(Point topLeft, Point bottomRight) {
-//            this.topLeft = topLeft;
-//            this.bottomRight = bottomRight;
-//        }
+    public BufferedImage addRowSeam(int[][] seamMaps, int n) {
+        BufferedImage newImage = new BufferedImage(width + n, height, BufferedImage.TYPE_INT_RGB);
+        R = new int[height][width + n];
+        G = new int[height][width + n];
+        B = new int[height][width + n];
+        // Iterate over each pixel and set the color based on the seam map
 
-//        public boolean intersects(int x, int y) {
-//            return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <= bottomRight.x;
-//        }
-//    // 检查缝隙是否与水平不可触碰区域相交
-//    private boolean intersectsHorizontalNonTouchableArea(int[] seamMap) {
-//        if (nonTouchableArea == null) {
-//            return false;
-//        }
-//
-//        for (int y = 0; y < seamMap.length; y++) {
-//            if (nonTouchableArea.intersects(seamMap[y],y)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-//
-//    // 检查缝隙是否与垂直不可触碰区域相交
-//    private boolean intersectsVerticalNonTouchableArea(int[] seamMap) {
-//        if (nonTouchableArea == null) {
-//            return false;
-//        }
-//
-//        for (int x = 0; x < seamMap.length; x++) {
-//            if (nonTouchableArea.intersects(x,seamMap[x])) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+        for (int y = 0; y < height; y++) {
+            int[] ends = myTool.insertionSort(seamMaps[y]);
+            int i = 0;
+            for (int x = 0; x < width; x++) {
+                Color color = new Color(rawImage.getRGB(x, y));
+                if (x < ends[i]) {
+                    R[y][x + i] = color.getRed();
+                    G[y][x + i] = color.getGreen();
+                    B[y][x + i] = color.getBlue();
+                    newImage.setRGB(x + i, y, color.getRGB());
+                } else if (x == ends[i]) {
+                    R[y][x + i] = color.getRed();
+                    G[y][x + i] = color.getGreen();
+                    B[y][x + i] = color.getBlue();
+                    newImage.setRGB(x + i, y, color.getRGB());
+                    R[y][x + i + 1] = color.getRed();
+                    G[y][x + i + 1] = color.getGreen();
+                    B[y][x + i + 1] = color.getBlue();
+                    newImage.setRGB(x + i + 1, y, color.getRGB());
+                    i++;
+                    if (i < n) {
+                        while (ends[i] == ends[i - 1]) {
+                            R[y][x + i + 1] = color.getRed();
+                            G[y][x + i + 1] = color.getGreen();
+                            B[y][x + i + 1] = color.getBlue();
+                            newImage.setRGB(x + i + 1, y, color.getRGB());
+                            i++;
+                            if (i == n) {
+                                i--;
+                                break;
+                            }
+                        }
+                    } else {
+                        i--;
+                    }
+
+                } else {
+                    R[y][x + n] = color.getRed();
+                    G[y][x + n] = color.getGreen();
+                    B[y][x + n] = color.getBlue();
+                    newImage.setRGB(x + n, y, color.getRGB());
+                }
+            }
+        }
+
+        return newImage;
+
+    }
+
+    public BufferedImage addColumnSeam(int[][] seamMaps, int n) {
+        BufferedImage newImage = new BufferedImage(width, height + n, BufferedImage.TYPE_INT_RGB);
+        R = new int[height + n][width];
+        G = new int[height + n][width];
+        B = new int[height + n][width];
+        // Iterate over each pixel and set the color based on the seam map
+
+        for (int y = 0; y < width; y++) {
+            int[] ends = myTool.insertionSort(seamMaps[y]);
+            int i = 0;
+            for (int x = 0; x < height; x++) {
+                Color color = new Color(rawImage.getRGB(y, x));
+                if (x < ends[i]) {
+                    R[x + i][y] = color.getRed();
+                    G[x + i][y] = color.getGreen();
+                    B[x + i][y] = color.getBlue();
+                    newImage.setRGB(y, x + i, color.getRGB());
+                } else if (x == ends[i]) {
+                    R[x + i][y] = color.getRed();
+                    G[x + i][y] = color.getGreen();
+                    B[x + i][y] = color.getBlue();
+                    newImage.setRGB(y, x + i, color.getRGB());
+                    R[x + i + 1][y] = color.getRed();
+                    G[x + i + 1][y] = color.getGreen();
+                    B[x + i + 1][y] = color.getBlue();
+                    newImage.setRGB(y, x + i + 1, color.getRGB());
+                    i++;
+                    if (i < n) {
+                        while (ends[i] == ends[i - 1]) {
+                            R[x + i + 1][y] = color.getRed();
+                            G[x + i + 1][y] = color.getGreen();
+                            B[x + i + 1][y] = color.getBlue();
+                            newImage.setRGB(y, x + i + 1, color.getRGB());
+                            i++;
+                            if (i == n) {
+                                i--;
+                                break;
+                            }
+                        }
+                    } else {
+                        i--;
+                    }
+
+                } else {
+                    R[x + n][y] = color.getRed();
+                    G[x + n][y] = color.getGreen();
+                    B[x + n][y] = color.getBlue();
+                    newImage.setRGB(y, x + n, color.getRGB());
+                }
+            }
+        }
+        return newImage;
+    }
+    // public class NonTouchableArea {
+    // private Point topLeft;
+    // private Point bottomRight;
+    //
+    // public NonTouchableArea(Point topLeft, Point bottomRight) {
+    // this.topLeft = topLeft;
+    // this.bottomRight = bottomRight;
+    // }
+
+    // public boolean intersects(int x, int y) {
+    // return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <=
+    // bottomRight.x;
+    // }
+    // // 检查缝隙是否与水平不可触碰区域相交
+    // private boolean intersectsHorizontalNonTouchableArea(int[] seamMap) {
+    // if (nonTouchableArea == null) {
+    // return false;
+    // }
+    //
+    // for (int y = 0; y < seamMap.length; y++) {
+    // if (nonTouchableArea.intersects(seamMap[y],y)) {
+    // return true;
+    // }
+    // }
+    // return false;
+    // }
+    //
+    // // 检查缝隙是否与垂直不可触碰区域相交
+    // private boolean intersectsVerticalNonTouchableArea(int[] seamMap) {
+    // if (nonTouchableArea == null) {
+    // return false;
+    // }
+    //
+    // for (int x = 0; x < seamMap.length; x++) {
+    // if (nonTouchableArea.intersects(x,seamMap[x])) {
+    // return true;
+    // }
+    // }
+    // return false;
+    // }
 
 }
-
