@@ -10,6 +10,7 @@ import java.io.IOException;
 public class ImageArea extends JPanel {
     BufferedImage image;
     BufferedImage copyImage;
+
     private double scale = 1.0;
     private int offsetX = 0;
     private int offsetY = 0;

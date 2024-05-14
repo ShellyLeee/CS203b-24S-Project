@@ -12,7 +12,7 @@ import java.io.IOException;
 public class GUI extends JFrame{
     private JLabel dimensionLabel;
     private String imgPath;
-    private String new_imgPath;
+    private String initialImagePath;
 
     public JPanel operateArea;
     private ImageArea imageArea;
@@ -27,8 +27,6 @@ public class GUI extends JFrame{
 
     private final int WIDTH;
     private final int HEIGHT;
-
-    public BufferedImage NewImage;
 
 
     public GUI(int width, int height){
@@ -101,44 +99,13 @@ public class GUI extends JFrame{
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    imgPath = selectedFile.getAbsolutePath();//这里是在后面有用吗。。
+                    imgPath = selectedFile.getAbsolutePath();
+                    initialImagePath = imgPath;
                     imageArea.loadImage(selectedFile);
                     imageArea.copyImage = imageArea.image;
                     repaint();
                     dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
-                    /*
-                    try {
-                        TargetImage = ImageIO.read(selectedFile);
-                        TargetImageCopy = TargetImage;
-                        dimensionLabel.setText("Dimension: "+TargetImage.getWidth()+"x"+TargetImage.getHeight());
-                        int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
-                        int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
 
-                        if(maxWidth > TargetImage.getWidth() || maxHeight > TargetImage.getHeight()) {
-                            //可以加个判断：如果高/宽大于框的大小再缩。（不过也可以直接规定导入的图片不能大于xxx，否则缩）
-                        }
-                        double widthRatio = (double) maxWidth / TargetImage.getWidth();
-                        double heightRatio = (double) maxHeight / TargetImage.getHeight();
-                        double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
-
-                        int newWidth = (int) (TargetImage.getWidth() * ratio);
-                        int newHeight = (int) (TargetImage.getHeight() * ratio);
-
-                        int x = (500 - newWidth) / 2;
-                        int y = (500 - newHeight) / 2;
-
-                        Image scaledImage = TargetImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                        ImageIcon icon = new ImageIcon(scaledImage);
-                        JLabel imageLabel = new JLabel(icon);
-                        imageLabel.setBounds(x, y, newWidth, newHeight);
-                        operateArea.removeAll(); // 清空 OperateArea 区域
-                        operateArea.add(imageLabel); // 添加缩放后的图片
-                        operateArea.revalidate(); // 重新布局
-                        operateArea.repaint(); // 刷新显示
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                     */
                 }
             }
         });
@@ -174,7 +141,7 @@ public class GUI extends JFrame{
                     int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
-                            // 获取用户输入的宽度和高度
+                            // 获取用户输入的宽度和高度改——————————————————————————！！！
                             sc.ChangeWidth = imageArea.image.getWidth() - Integer.parseInt(widthField.getText());
                             sc.ChangeHeight = imageArea.image.getHeight() - Integer.parseInt(heightField.getText());
                             // 可以在这里进行一些额外的验证
@@ -184,7 +151,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.cutWidth(sc.ChangeWidth);
                         sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
-                        new_imgPath = "Code/img/new_image.jpg";
+                        imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
                     int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
@@ -200,14 +167,13 @@ public class GUI extends JFrame{
                         // Logic
                         sc.cutWidth(sc.WidthRatio);
                         sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
-                        new_imgPath = "Code/img/new_image.jpg";
+                        imgPath = "Code/img/new_image.jpg";
                     }
                 }
                 imageArea.removeAll();
                 imageArea.repaint();
-                imageArea.loadImage(new File(new_imgPath));
-                NewImage = imageArea.image;
-                dimensionLabel.setText("Dimension: "+ NewImage.getWidth()+"x"+NewImage.getHeight());
+                imageArea.loadImage(new File(imgPath));
+                dimensionLabel.setText("Dimension: "+ imageArea.image.getWidth()+"x"+ imageArea.image.getHeight());
             }
         });
 
@@ -219,6 +185,65 @@ public class GUI extends JFrame{
         Expand = new JButton("Expand");
         Expand.setSize(120,50);
         Expand.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 140);
+
+        Expand.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 创建一个对话框
+                JPanel panel = new JPanel();
+                JTextField widthField = new JTextField(5);
+                JTextField heightField = new JTextField(5);
+
+                panel.add(new JLabel("Width:"));
+                panel.add(widthField);
+                panel.add(Box.createHorizontalStrut(15)); // 添加间隔
+                panel.add(new JLabel("Height:"));
+                panel.add(heightField);
+
+                SeamCarving sc = new SeamCarving(imgPath);
+                int choice = JOptionPane.showOptionDialog(null, "Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
+                // 处理用户选择
+                if (choice == JOptionPane.YES_OPTION) {
+                    int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == JOptionPane.OK_OPTION) {
+                        try {
+                            // 获取用户输入的宽度和高度改——————————————————————————！！！
+                            sc.ChangeWidth = Integer.parseInt(widthField.getText()) - imageArea.image.getWidth();
+                            sc.ChangeHeight = Integer.parseInt(heightField.getText()) - imageArea.image.getHeight();
+                            // 可以在这里进行一些额外的验证
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(null, "Please enter valid numbers for Width and Height.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        // Logic
+                        sc.expandWidth(sc.ChangeWidth);
+                        sc.expandHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                        imgPath = "Code/img/new_image.jpg";
+                    }
+                } else if (choice == JOptionPane.NO_OPTION) {
+                    int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
+                    if (result == JOptionPane.OK_OPTION) {
+                        try {
+                            // 获取用户输入的ratio
+                            sc.WidthRatio = 1-Double.parseDouble(widthField.getText());
+                            sc.HeightRatio = 1-Double.parseDouble(heightField.getText());
+                            // 可以在这里进行一些额外的验证
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(null, "Please enter valid numbers for Ratio.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                        // Logic
+                        sc.expandWidth(sc.WidthRatio);
+                        sc.expandHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                        imgPath = "Code/img/new_image.jpg";
+                    }
+                }
+                imageArea.removeAll();
+                imageArea.repaint();
+                imageArea.loadImage(new File(imgPath));
+                dimensionLabel.setText("Dimension: "+ imageArea.image.getWidth()+"x"+ imageArea.image.getHeight());
+            }
+        });
+
         add(Expand);
         setVisible(true);
     }
@@ -249,32 +274,10 @@ public class GUI extends JFrame{
         Retry.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    imageArea.image = imageArea.copyImage;
-                    dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
-                    int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
-                    int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
-                    double widthRatio = (double) maxWidth / imageArea.image.getWidth();
-                    double heightRatio = (double) maxHeight / imageArea.image.getHeight();
-                    double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
-
-                    int newWidth = (int) (imageArea.image.getWidth() * ratio);
-                    int newHeight = (int) (imageArea.image.getHeight() * ratio);
-
-                    int x = (500 - newWidth) / 2;
-                    int y = (500 - newHeight) / 2;
-
-                    Image scaledImage = imageArea.image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                    ImageIcon icon = new ImageIcon(scaledImage);
-                    JLabel imageLabel = new JLabel(icon);
-                    imageLabel.setBounds(x, y, newWidth, newHeight);
-                    operateArea.removeAll(); // 清空 OperateArea 区域
-                    operateArea.add(imageLabel); // 添加缩放后的图片
-                    operateArea.revalidate(); // 重新布局
-                    operateArea.repaint(); // 刷新显示
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Please import an image first.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                imageArea.image = imageArea.copyImage;
+                imgPath = initialImagePath;
+                repaint();
+                dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
             }
         });
 
@@ -290,7 +293,7 @@ public class GUI extends JFrame{
         Download.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (NewImage != null) {
+                if (imageArea.image != null) {
                     JFileChooser fileChooser = new JFileChooser();
                     fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                     int returnValue = fileChooser.showOpenDialog(null);
@@ -300,7 +303,7 @@ public class GUI extends JFrame{
                         File outputFile = new File(selectedFolder, fileName); // 创建新文件
                         try {
                             // 将图像写入新文件
-                            ImageIO.write(NewImage, "jpg", outputFile);
+                            ImageIO.write(imageArea.image, "jpg", outputFile);
                             JOptionPane.showMessageDialog(null, "Image downloaded successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                         } catch (IOException ex) {
                             ex.printStackTrace();
