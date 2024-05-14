@@ -22,6 +22,7 @@ public class GUI extends JFrame{
     public JButton SelectRemove;
     public JButton Retry;
     public JButton Download;
+    public JButton Help;
 
     private final int WIDTH;
     private final int HEIGHT;
@@ -39,7 +40,7 @@ public class GUI extends JFrame{
 
         //Slider
         JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, 200, 100);
-        zoomSlider.setBounds(50, 510, 400, 50);
+        zoomSlider.setBounds(60, 510, 400, 50);
         zoomSlider.setPreferredSize(new Dimension(zoomSlider.getPreferredSize().width, zoomSlider.getPreferredSize().height / 2));
         zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setMinorTickSpacing(10);
@@ -47,7 +48,7 @@ public class GUI extends JFrame{
         zoomSlider.setPaintLabels(true);
         JLabel valueLabel = new JLabel("Size: 100%");
         valueLabel.setSize(200,20);
-        valueLabel.setLocation(460, 515);
+        valueLabel.setLocation(470, 515);
         add(valueLabel);
         zoomSlider.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -72,7 +73,7 @@ public class GUI extends JFrame{
         addImportButton();
         addRetryButton();
         addDownloadButton();
-
+        addHelpButton();
         setLocationRelativeTo(null);
         this.setVisible(true);
     }
@@ -84,6 +85,37 @@ public class GUI extends JFrame{
         dimensionLabel.setLocation(550, 20);
         add(dimensionLabel);
         dimensionLabel.setVisible(true);
+    }
+
+    private void addHelpButton(){
+        Help = new JButton("Help");
+        Help.setSize(40,33);
+        Help.setLocation(8, 8);
+
+        Help.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 创建一个 JTextArea，用于展示内容
+                JTextArea textArea = new JTextArea();
+                textArea.setEditable(false);
+                textArea.setLineWrap(true);
+                textArea.setWrapStyleWord(true);
+                textArea.setText("在操作前请参考我们的说明文档。" + System.lineSeparator() +""+ System.lineSeparator() +
+                        "我们的界面布局为：左侧灰色区域为图片操作区，灰色区域右侧的Dimension代表图片目前的尺寸（宽*高），下方进度条可灵活调节图片大小方便观察（size代表放缩程度），右侧有7个按钮可支持图片相关的操作。"+ System.lineSeparator() + ""+ System.lineSeparator() +
+                "按钮使用方法：" + System.lineSeparator() + "1. Import：导入图片。请选择相关图片路径导入图片"+ System.lineSeparator() + "2. Shrink：不选定相关区域，缩小图片"+ System.lineSeparator() + "3. Expand：不选定相关区域，放大图片"+ System.lineSeparator() + "4. SelectKeep：选定相关区域以保持不变，缩小图片" + System.lineSeparator() + "5. SelectRemove：选定相关区域以增强删除，缩小图片"+ System.lineSeparator() + "6. Retry：重新加载最初版本import的图片"+ System.lineSeparator() + "7. Download：下载现在的图片。请选择相关图片路径导出图片（jpg格式）" +System.lineSeparator()+ ""+ System.lineSeparator() +
+                        "注意事项：" + System.lineSeparator() + "1. 在Shrink、Expand、SelectKeep、SelectRemove时，点击后若出现Mode Selection文本框，请选择依据比例（ratio）或依据数值（value）进行图片的修改操作。"+ System.lineSeparator() +"如果选择比例，您输入的ratio必须位于(0,1)间；如果选择数值，您输入的value必须合乎逻辑。（例如，缩小模式下，输入的value要小于原数值；放大模式下，输入的value要大于原数值）" + System.lineSeparator() + "2. 您可以在导入图片后长按图片中某一点拖出一个红色矩形框，这个框即为选择区域（Selected Area）。如果要使用SelectKeep或SelectRemove模式，请确保您在点击SelectKeep、SelectRemove按钮前已经选定相应区域，再进行后续操作。");
+
+                // 将 JTextArea 放入 JScrollPane 中
+                JScrollPane scrollPane = new JScrollPane(textArea);
+                scrollPane.setPreferredSize(new Dimension(400, 500));
+
+                // 创建一个展示对话框
+                JOptionPane.showMessageDialog(null, scrollPane, "Help", JOptionPane.PLAIN_MESSAGE);
+            }
+        });
+
+        add(Help);
+        setVisible(true);
     }
 
     //导入
@@ -135,7 +167,7 @@ public class GUI extends JFrame{
                 panel.add(heightField);
 
                 SeamCarving sc = new SeamCarving(imgPath);
-                int choice = JOptionPane.showOptionDialog(null, "Shrink: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                int choice = JOptionPane.showOptionDialog(null, "Shrink: Please select your mode", "Mode Selection", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                 // 处理用户选择
                 if (choice == JOptionPane.YES_OPTION) {
@@ -203,7 +235,7 @@ public class GUI extends JFrame{
                 panel.add(heightField);
 
                 SeamCarving sc = new SeamCarving(imgPath);
-                int choice = JOptionPane.showOptionDialog(null, "Expand: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                int choice = JOptionPane.showOptionDialog(null, "Expand: Please select your mode", "Mode Selection", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                 // 处理用户选择
                 if (choice == JOptionPane.YES_OPTION) {
@@ -273,7 +305,7 @@ public class GUI extends JFrame{
                 int confirm = JOptionPane.showConfirmDialog(null, "Use the current selected area?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
                 if (confirm == JOptionPane.OK_OPTION) {
                     sc = new SeamCarving(imgPath, new Point(imageArea.newBoxX1,imageArea.newBoxY1), new Point(imageArea.newBoxX4,imageArea.newBoxY4));
-                    int choice = JOptionPane.showOptionDialog(null, "Select to Keep: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                    int choice = JOptionPane.showOptionDialog(null, "Select to Keep: Please select your mode", "Mode Selection", JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                     // 处理用户选择
                     if (choice == JOptionPane.YES_OPTION) {
@@ -335,7 +367,6 @@ public class GUI extends JFrame{
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
                 JTextField heightField = new JTextField(5);
-
                 panel.add(new JLabel("Width:"));
                 panel.add(widthField);
                 panel.add(Box.createHorizontalStrut(15)); // 添加间隔
@@ -346,7 +377,7 @@ public class GUI extends JFrame{
                 int confirm = JOptionPane.showConfirmDialog(null, "Use the current selected area?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
                 if (confirm == JOptionPane.OK_OPTION) {
                     sc = new SeamCarving(imgPath, new Point(imageArea.newBoxX1,imageArea.newBoxY1), new Point(imageArea.newBoxX4,imageArea.newBoxY4),1);
-                    int choice = JOptionPane.showOptionDialog(null, "Select to Remove: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                    int choice = JOptionPane.showOptionDialog(null, "Select to Remove: Please select your mode", "Mode Selection", JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                     // 处理用户选择
                     if (choice == JOptionPane.YES_OPTION) {
