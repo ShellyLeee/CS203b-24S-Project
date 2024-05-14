@@ -12,8 +12,8 @@ public class ImageArea extends JPanel {
     BufferedImage copyImage;
 
     private double scale = 1.0;
-    private Point startPoint; // 框选的起始点
-    private Point endPoint; // 框选的结束点
+    Point startPoint; // 框选的起始点
+    Point endPoint; // 框选的结束点
 
     int topLeftX;
     int topLeftY;
@@ -38,6 +38,8 @@ public class ImageArea extends JPanel {
     int newBoxX4;
     int newBoxY4;
 
+    Boolean Selecting = false;
+
     public ImageArea() {
         //loadImage();
         setPreferredSize(new Dimension(800, 800)); // 设置开始大小
@@ -59,6 +61,7 @@ public class ImageArea extends JPanel {
 
             public void mouseReleased(MouseEvent e) {
                 endPoint = e.getPoint(); // 记录鼠标释放的坐标作为框选的结束点
+
                 // 计算框选区域在图片中的相对坐标
                 if (startPoint != null && endPoint != null) {
                     BoxX1 = (int) startPoint.getX();
@@ -88,6 +91,7 @@ public class ImageArea extends JPanel {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        ImageCoordinates();
     }
 
     public void setScale(double scale) {

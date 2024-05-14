@@ -5,7 +5,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -14,8 +13,7 @@ public class GUI extends JFrame{
     private String imgPath;
     private String initialImagePath;
 
-    public JPanel operateArea;
-    private ImageArea imageArea;
+    private final ImageArea imageArea;
 
     public JButton Shrink;
     public JButton Expand;
@@ -79,6 +77,7 @@ public class GUI extends JFrame{
         this.setVisible(true);
     }
 
+    //图片大小标签
     private void addDimensionLabel(){
         dimensionLabel = new JLabel("Dimension:");
         dimensionLabel.setSize(200,20);
@@ -87,6 +86,7 @@ public class GUI extends JFrame{
         dimensionLabel.setVisible(true);
     }
 
+    //导入
     private void addImportButton(){
         Import= new JButton("Import");
         Import.setSize(120,50);
@@ -104,7 +104,6 @@ public class GUI extends JFrame{
                     imageArea.loadImage(selectedFile);
                     imageArea.copyImage = imageArea.image;
                     repaint();
-                    imageArea.ImageCoordinates();
                     dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
 
                 }
@@ -115,6 +114,7 @@ public class GUI extends JFrame{
         setVisible(true);
     }
 
+    //缩小
     private void addShrinkButton(){
         Shrink = new JButton("Shrink");
         Shrink.setSize(120,50);
@@ -135,11 +135,11 @@ public class GUI extends JFrame{
                 panel.add(heightField);
 
                 SeamCarving sc = new SeamCarving(imgPath);
-                int choice = JOptionPane.showOptionDialog(null, "Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                int choice = JOptionPane.showOptionDialog(null, "Shrink: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                 // 处理用户选择
                 if (choice == JOptionPane.YES_OPTION) {
-                    int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
+                    int result = JOptionPane.showConfirmDialog(null, panel, "Shrink: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
                             // 获取用户输入的宽度和高度
@@ -155,7 +155,7 @@ public class GUI extends JFrame{
                         imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
-                    int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
+                    int result = JOptionPane.showConfirmDialog(null, panel, "Shrink: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
                             // 获取用户输入的ratio
@@ -182,6 +182,7 @@ public class GUI extends JFrame{
         setVisible(true);
     }
 
+    //扩大
     private void addExpandButton(){
         Expand = new JButton("Expand");
         Expand.setSize(120,50);
@@ -202,14 +203,14 @@ public class GUI extends JFrame{
                 panel.add(heightField);
 
                 SeamCarving sc = new SeamCarving(imgPath);
-                int choice = JOptionPane.showOptionDialog(null, "Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                int choice = JOptionPane.showOptionDialog(null, "Expand: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                 // 处理用户选择
                 if (choice == JOptionPane.YES_OPTION) {
-                    int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
+                    int result = JOptionPane.showConfirmDialog(null, panel, "Expand: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
-                            // 获取用户输入的宽度和高度改——————————————————————————！！！
+                            // 获取用户输入的宽度和高度
                             sc.ChangeWidth = Integer.parseInt(widthField.getText()) - imageArea.image.getWidth();
                             sc.ChangeHeight = Integer.parseInt(heightField.getText()) - imageArea.image.getHeight();
                             // 可以在这里进行一些额外的验证
@@ -222,7 +223,7 @@ public class GUI extends JFrame{
                         imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
-                    int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
+                    int result = JOptionPane.showConfirmDialog(null, panel, "Expand: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
                             // 获取用户输入的ratio
@@ -253,6 +254,71 @@ public class GUI extends JFrame{
         SelectKeep= new JButton("Select to Keep");
         SelectKeep.setSize(120,50);
         SelectKeep.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 210);
+
+        SelectKeep.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 创建一个对话框
+                JPanel panel = new JPanel();
+                JTextField widthField = new JTextField(5);
+                JTextField heightField = new JTextField(5);
+
+                panel.add(new JLabel("Width:"));
+                panel.add(widthField);
+                panel.add(Box.createHorizontalStrut(15)); // 添加间隔
+                panel.add(new JLabel("Height:"));
+                panel.add(heightField);
+
+                SeamCarving sc = null;
+                int confirm = JOptionPane.showConfirmDialog(null, "Use the current selected area?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+                if (confirm == JOptionPane.OK_OPTION) {
+                    sc = new SeamCarving(imgPath, new Point(imageArea.newBoxX1,imageArea.newBoxY1), new Point(imageArea.newBoxX4,imageArea.newBoxY4));
+                    int choice = JOptionPane.showOptionDialog(null, "Select to Keep: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
+                    // 处理用户选择
+                    if (choice == JOptionPane.YES_OPTION) {
+                        int result = JOptionPane.showConfirmDialog(null, panel, "Select to Keep: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
+                        if (result == JOptionPane.OK_OPTION) {
+                            try {
+                                // 获取用户输入的宽度和高度
+                                sc.ChangeWidth = imageArea.image.getWidth() - Integer.parseInt(widthField.getText());
+                                sc.ChangeHeight = imageArea.image.getHeight() - Integer.parseInt(heightField.getText());
+                                // 可以在这里进行一些额外的验证
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for Width and Height.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            // Logic
+                            sc.cutWidth(sc.ChangeWidth);
+                            sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                            imgPath = "Code/img/new_image.jpg";
+                        }
+                    } else if (choice == JOptionPane.NO_OPTION) {
+                        int result = JOptionPane.showConfirmDialog(null, panel, "Select to Keep: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
+                        if (result == JOptionPane.OK_OPTION) {
+                            try {
+                                // 获取用户输入的ratio
+                                sc.WidthRatio = 1-Double.parseDouble(widthField.getText());
+                                sc.HeightRatio = 1-Double.parseDouble(heightField.getText());
+                                // 可以在这里进行一些额外的验证
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for Ratio.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            // Logic
+                            sc.cutWidth(sc.WidthRatio);
+                            sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                            imgPath = "Code/img/new_image.jpg";
+                        }
+                    }
+                    imageArea.removeAll();
+                    imageArea.startPoint = null;
+                    imageArea.endPoint = null;
+                    imageArea.repaint();
+                    imageArea.loadImage(new File(imgPath));
+                    dimensionLabel.setText("Dimension: "+ imageArea.image.getWidth()+"x"+ imageArea.image.getHeight());
+                }
+            }
+        });
+
         add(SelectKeep);
         setVisible(true);
     }
@@ -261,12 +327,76 @@ public class GUI extends JFrame{
         SelectRemove= new JButton("Select to Remove");
         SelectRemove.setSize(120,50);
         SelectRemove.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 280);
+
+        SelectRemove.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // 创建一个对话框
+                JPanel panel = new JPanel();
+                JTextField widthField = new JTextField(5);
+                JTextField heightField = new JTextField(5);
+
+                panel.add(new JLabel("Width:"));
+                panel.add(widthField);
+                panel.add(Box.createHorizontalStrut(15)); // 添加间隔
+                panel.add(new JLabel("Height:"));
+                panel.add(heightField);
+
+                SeamCarving sc = null;
+                int confirm = JOptionPane.showConfirmDialog(null, "Use the current selected area?", "Confirmation", JOptionPane.OK_CANCEL_OPTION);
+                if (confirm == JOptionPane.OK_OPTION) {
+                    sc = new SeamCarving(imgPath, new Point(imageArea.newBoxX1,imageArea.newBoxY1), new Point(imageArea.newBoxX4,imageArea.newBoxY4),1);
+                    int choice = JOptionPane.showOptionDialog(null, "Select to Remove: Please select your mode", "Selection", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
+                    // 处理用户选择
+                    if (choice == JOptionPane.YES_OPTION) {
+                        int result = JOptionPane.showConfirmDialog(null, panel, "Select to Remove: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
+                        if (result == JOptionPane.OK_OPTION) {
+                            try {
+                                // 获取用户输入的宽度和高度
+                                sc.ChangeWidth = imageArea.image.getWidth() - Integer.parseInt(widthField.getText());
+                                sc.ChangeHeight = imageArea.image.getHeight() - Integer.parseInt(heightField.getText());
+                                // 可以在这里进行一些额外的验证
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for Width and Height.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            // Logic
+                            sc.cutWidth(sc.ChangeWidth);
+                            sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                            imgPath = "Code/img/new_image.jpg";
+                        }
+                    } else if (choice == JOptionPane.NO_OPTION) {
+                        int result = JOptionPane.showConfirmDialog(null, panel, "Select to Keep: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
+                        if (result == JOptionPane.OK_OPTION) {
+                            try {
+                                // 获取用户输入的ratio
+                                sc.WidthRatio = 1-Double.parseDouble(widthField.getText());
+                                sc.HeightRatio = 1-Double.parseDouble(heightField.getText());
+                                // 可以在这里进行一些额外的验证
+                            } catch (NumberFormatException ex) {
+                                JOptionPane.showMessageDialog(null, "Please enter valid numbers for Ratio.", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                            // Logic
+                            sc.cutWidth(sc.WidthRatio);
+                            sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                            imgPath = "Code/img/new_image.jpg";
+                        }
+                    }
+                    imageArea.removeAll();
+                    imageArea.startPoint = null;
+                    imageArea.endPoint = null;
+                    imageArea.repaint();
+                    imageArea.loadImage(new File(imgPath));
+                    dimensionLabel.setText("Dimension: "+ imageArea.image.getWidth()+"x"+ imageArea.image.getHeight());
+                }
+            }
+        });
+
         add(SelectRemove);
         setVisible(true);
     }
-    /*
-    Retry: 用来在Shrink或者Expand后重新显示操作前原图。
-     */
+
+    //Retry: 用来在Shrink或者Expand后重新显示操作前原图。
     private void addRetryButton(){
         Retry= new JButton("Retry");
         Retry.setSize(120,50);
@@ -286,6 +416,7 @@ public class GUI extends JFrame{
         setVisible(true);
     }
 
+    //下载目前显示的图片
     private void addDownloadButton(){
         Download = new JButton("Download");
         Download.setSize(120,50);
