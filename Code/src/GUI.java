@@ -102,7 +102,7 @@ public class GUI extends JFrame{
                 textArea.setWrapStyleWord(true);
                 textArea.setText("在操作前请参考我们的说明文档。" + System.lineSeparator() +""+ System.lineSeparator() +
                         "我们的界面布局为：左侧灰色区域为图片操作区，灰色区域右侧的Dimension代表图片目前的尺寸（宽*高），下方进度条可灵活调节图片大小方便观察（size代表放缩程度），右侧有7个按钮可支持图片相关的操作。"+ System.lineSeparator() + ""+ System.lineSeparator() +
-                "按钮使用方法：" + System.lineSeparator() + "1. Import：导入图片。请选择相关图片路径导入图片"+ System.lineSeparator() + "2. Shrink：不选定相关区域，缩小图片"+ System.lineSeparator() + "3. Expand：不选定相关区域，放大图片"+ System.lineSeparator() + "4. SelectKeep：选定相关区域以保持不变，缩小图片" + System.lineSeparator() + "5. SelectRemove：选定相关区域以增强删除，缩小图片"+ System.lineSeparator() + "6. Retry：重新加载最初版本import的图片"+ System.lineSeparator() + "7. Download：下载现在的图片。请选择相关图片路径导出图片（jpg格式）" +System.lineSeparator()+ ""+ System.lineSeparator() +
+                "按钮使用方法：" + System.lineSeparator() + "1. Import：导入图片。请选择相关图片路径导入图片"+ System.lineSeparator() + "2. Shrink：不选定相关区域，缩小图片"+ System.lineSeparator() + "3. Expand：不选定相关区域，放大图片"+ System.lineSeparator() + "4. Shrink: SelectKeep：选定相关区域以保持不变，缩小图片" + System.lineSeparator() + "5. Shrink: SelectRemove：选定相关区域以增强删除，缩小图片"+ System.lineSeparator() + "6. Retry：重新加载最初版本import的图片"+ System.lineSeparator() + "7. Download：下载现在的图片。请选择相关图片路径导出图片（jpg格式）" +System.lineSeparator()+ ""+ System.lineSeparator() +
                         "注意事项：" + System.lineSeparator() + "1. 在Shrink、Expand、SelectKeep、SelectRemove时，点击后若出现Mode Selection文本框，请选择依据比例（ratio）或依据数值（value）进行图片的修改操作。"+ System.lineSeparator() +"如果选择比例，您输入的ratio必须位于(0,1)间；如果选择数值，您输入的value必须合乎逻辑。（例如，缩小模式下，输入的value要小于原数值；放大模式下，输入的value要大于原数值）" + System.lineSeparator() + "2. 您可以在导入图片后长按图片中某一点拖出一个红色矩形框，这个框即为选择区域（Selected Area）。如果要使用SelectKeep或SelectRemove模式，请确保您在点击SelectKeep、SelectRemove按钮前已经选定相应区域，再进行后续操作。");
 
                 // 将 JTextArea 放入 JScrollPane 中
@@ -283,9 +283,9 @@ public class GUI extends JFrame{
     }
 
     private void addSelectKeepButton(){
-        SelectKeep= new JButton("Select to Keep");
-        SelectKeep.setSize(120,50);
-        SelectKeep.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 210);
+        SelectKeep= new JButton("Shrink: SelectKeep");
+        SelectKeep.setSize(150,50);
+        SelectKeep.setLocation(WIDTH * 4 / 5 - 15, HEIGHT / 10 + 210);
 
         SelectKeep.addActionListener(new ActionListener() {
             @Override
@@ -356,9 +356,9 @@ public class GUI extends JFrame{
     }
 
     private void addSelectRemoveButton(){
-        SelectRemove= new JButton("Select to Remove");
-        SelectRemove.setSize(120,50);
-        SelectRemove.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 280);
+        SelectRemove= new JButton("Shrink: SelectRemove");
+        SelectRemove.setSize(150,50);
+        SelectRemove.setLocation(WIDTH * 4 / 5 - 15, HEIGHT / 10 + 280);
 
         SelectRemove.addActionListener(new ActionListener() {
             @Override
