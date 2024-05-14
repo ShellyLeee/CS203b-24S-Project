@@ -104,6 +104,7 @@ public class GUI extends JFrame{
                     imageArea.loadImage(selectedFile);
                     imageArea.copyImage = imageArea.image;
                     repaint();
+                    imageArea.ImageCoordinates();
                     dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
 
                 }
@@ -141,7 +142,7 @@ public class GUI extends JFrame{
                     int result = JOptionPane.showConfirmDialog(null, panel, "Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
-                            // 获取用户输入的宽度和高度改——————————————————————————！！！
+                            // 获取用户输入的宽度和高度
                             sc.ChangeWidth = imageArea.image.getWidth() - Integer.parseInt(widthField.getText());
                             sc.ChangeHeight = imageArea.image.getHeight() - Integer.parseInt(heightField.getText());
                             // 可以在这里进行一些额外的验证

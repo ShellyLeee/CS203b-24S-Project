@@ -12,10 +12,31 @@ public class ImageArea extends JPanel {
     BufferedImage copyImage;
 
     private double scale = 1.0;
-    private int offsetX = 0;
-    private int offsetY = 0;
     private Point startPoint; // 框选的起始点
     private Point endPoint; // 框选的结束点
+
+    int topLeftX;
+    int topLeftY;
+    int topRightX;
+    int topRightY;
+    int bottomLeftX;
+    int bottomLeftY;
+    int bottomRightX;
+    int bottomRightY;
+
+    int BoxX1;
+    int BoxY1;
+    int BoxX2;
+    int BoxY2;
+    int BoxX3;
+    int BoxY3;
+    int BoxX4;
+    int BoxY4;
+
+    int newBoxX1;
+    int newBoxY1;
+    int newBoxX4;
+    int newBoxY4;
 
     public ImageArea() {
         //loadImage();
@@ -29,7 +50,6 @@ public class ImageArea extends JPanel {
                 startPoint = e.getPoint(); // 记录鼠标按下的坐标作为框选的起始点
                 endPoint = startPoint;
                 repaint();
-                System.out.println(startPoint);
             }
 
             public void mouseDragged(MouseEvent e) {
@@ -39,22 +59,25 @@ public class ImageArea extends JPanel {
 
             public void mouseReleased(MouseEvent e) {
                 endPoint = e.getPoint(); // 记录鼠标释放的坐标作为框选的结束点
-                System.out.println(endPoint);
                 // 计算框选区域在图片中的相对坐标
                 if (startPoint != null && endPoint != null) {
-                    int x1 = (int) ((startPoint.getX() - offsetX) / scale);
-                    int y1 = (int) ((startPoint.getY() - offsetY) / scale);
-                    int x2 = (int) ((endPoint.getX() - offsetX) / scale);
-                    int y2 = (int) ((endPoint.getY() - offsetY) / scale);
-                    System.out.println("框选区域在图片中的相对坐标：(" + x1 + ", " + y1 + ") - (" + x2 + ", " + y2 + ")");
+                    BoxX1 = (int) startPoint.getX();
+                    BoxY1 = (int) startPoint.getY();
+                    BoxX2 = (int) endPoint.getX();
+                    BoxY2 = (int) startPoint.getY();
+                    BoxX3 = (int) startPoint.getX();
+                    BoxY3 = (int) endPoint.getY();
+                    BoxX4 = (int) endPoint.getX();
+                    BoxY4 = (int) endPoint.getY();
+
+                    TransformBoxImage();
+                    System.out.println(newBoxX1);
+                    System.out.println(newBoxY1);
+                    System.out.println(newBoxX4);
+                    System.out.println(newBoxY4);
                 }
                 repaint();
             }
-
-            public void mouseClicked(MouseEvent e) {}
-            public void mouseEntered(MouseEvent e) {}
-            public void mouseExited(MouseEvent e) {}
-            public void mouseMoved(MouseEvent e) {}
 
         });
     }
@@ -71,6 +94,7 @@ public class ImageArea extends JPanel {
         this.scale = scale;
         revalidate();
         repaint();
+        ImageCoordinates();
     }
 
     protected void paintComponent(Graphics g) {
@@ -92,5 +116,52 @@ public class ImageArea extends JPanel {
                 g.drawRect(x1, y1, x2 - x1, y2 - y1);
             }
         }
+    }
+
+    void ImageCoordinates() {
+        if (image != null) {
+            int width = (int) (image.getWidth(this) * scale);
+            int height = (int) (image.getHeight(this) * scale);
+            int x = (getWidth() - width) / 2;
+            int y = (getHeight() - height) / 2;
+            // 四角坐标
+            topLeftX = x;
+            topLeftY = y;
+            topRightX = x + width;
+            topRightY = y;
+            bottomLeftX = x;
+            bottomLeftY = y + height;
+            bottomRightX = x + width;
+            bottomRightY = y + height;
+            System.out.println(topLeftX);
+            System.out.println(topLeftY);
+            System.out.println(bottomRightX);
+            System.out.println(bottomRightY);
+        }
+    }
+    public void TransformBoxImage(){
+        // 平移+伸缩：针对box
+        double x = image.getWidth();
+        double w = (double) topRightX - topLeftX;
+        double ratio = w / x;
+        int bx1 = BoxX1 - topLeftX;
+        int by1 = BoxY1 - topLeftY;//平移框左上角点
+
+        int width1 = bx1;
+        int height1 = by1;
+        int width2 = BoxX2 - BoxX1;
+        int height2 = BoxY4 - BoxY2;
+        int CWidth1 = (int) (width1 / ratio);
+        int CWidth2 = (int) (width2 / ratio);
+        int CHeight1 = (int) (height1 / ratio);
+        int CHeight2 = (int) (height2 / ratio);
+
+        //左上右下坐标
+        newBoxX1 = CWidth1;
+        newBoxY1 = CHeight1;
+
+        newBoxX4 = CWidth1 + CWidth2;
+        newBoxY4 = CHeight1 + CHeight2;
+
     }
 }
