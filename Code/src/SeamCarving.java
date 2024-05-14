@@ -167,14 +167,15 @@ public class SeamCarving {
     }
 
     public void expandWidth(int n) {
-        BufferedImage newImage = currentImage;
-        EandMap result = calculateRowEnergy(newImage, width, height);
+        EandMap result = calculateRowEnergy(currentImage, width, height);
         int[] indexes = myTool.sortIndex(result.currentEnergy);
         int[][] seamMaps = findNMinPath(indexes, result.map, n, height);
         showSeamMap(seamMaps, n, "width");
-        newImage = addRowSeam(seamMaps, n);
+        BufferedImage newImage = new BufferedImage(width + n, height, BufferedImage.TYPE_INT_RGB);
+        newImage = addRowSeam(newImage, seamMaps, n);
 
         currentImage = newImage;
+        width = width + n;
         try {
             File seamFile = new File("Code/img/new_image.jpg");
             ImageIO.write(currentImage, "jpg", seamFile);
@@ -190,14 +191,15 @@ public class SeamCarving {
     }
 
     public void expandHeight(int n) {
-        BufferedImage newImage = currentImage;
-        EandMap result = calculateColumnEnergy(newImage, width, height);
+        EandMap result = calculateColumnEnergy(currentImage, width, height);
         int[] indexes = myTool.sortIndex(result.currentEnergy);
         int[][] seamMaps = findNMinPath(indexes, result.map, n, width);
         showSeamMap(seamMaps, n, "height");
-        newImage = addColumnSeam(seamMaps, n);
+        BufferedImage newImage = new BufferedImage(width, height + n, BufferedImage.TYPE_INT_RGB);
+        newImage = addColumnSeam(newImage, seamMaps, n);
 
         currentImage = newImage;
+        height = height + n;
         try {
             File seamFile = new File("Code/img/new_image.jpg");
             ImageIO.write(currentImage, "jpg", seamFile);
@@ -623,8 +625,7 @@ public class SeamCarving {
         return newImage;
     }
 
-    public BufferedImage addRowSeam(int[][] seamMaps, int n) {
-        BufferedImage newImage = new BufferedImage(width + n, height, BufferedImage.TYPE_INT_RGB);
+    public BufferedImage addRowSeam(BufferedImage newImage, int[][] seamMaps, int n) {
         R = new int[height][width + n];
         G = new int[height][width + n];
         B = new int[height][width + n];
@@ -675,12 +676,12 @@ public class SeamCarving {
             }
         }
 
+        rawImage = newImage;
         return newImage;
 
     }
 
-    public BufferedImage addColumnSeam(int[][] seamMaps, int n) {
-        BufferedImage newImage = new BufferedImage(width, height + n, BufferedImage.TYPE_INT_RGB);
+    public BufferedImage addColumnSeam(BufferedImage newImage, int[][] seamMaps, int n) {
         R = new int[height + n][width];
         G = new int[height + n][width];
         B = new int[height + n][width];
@@ -730,6 +731,8 @@ public class SeamCarving {
                 }
             }
         }
+
+        rawImage = newImage;
         return newImage;
     }
     // public class NonTouchableArea {
