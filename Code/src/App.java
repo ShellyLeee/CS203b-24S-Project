@@ -1,5 +1,11 @@
+import javax.swing.*;
+
 public class App {
     public static void main(String[] args) throws Exception {
-        GUI gui = new GUI(800,600);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new GUI(800,600);
+            }
+        });
     }
 }

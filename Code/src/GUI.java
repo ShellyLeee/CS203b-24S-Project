@@ -1,18 +1,22 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 public class GUI extends JFrame{
     private JLabel dimensionLabel;
     private String imgPath;
     private String new_imgPath;
+
     public JPanel operateArea;
+    private ImageArea imageArea;
+
     public JButton Shrink;
     public JButton Expand;
     public JButton Import;
@@ -20,10 +24,9 @@ public class GUI extends JFrame{
     public JButton SelectRemove;
     public JButton Retry;
     public JButton Download;
+
     private final int WIDTH;
     private final int HEIGHT;
-    public BufferedImage TargetImage;
-    public BufferedImage TargetImageCopy;
 
     public BufferedImage NewImage;
 
@@ -37,13 +40,34 @@ public class GUI extends JFrame{
         getContentPane().setBackground(Color.WHITE);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //程序右上方的叉关闭
         setLayout(null);
-        //Operate Area
-        operateArea = new JPanel();
-        operateArea.setLayout(null);
-        operateArea.setBackground(Color.LIGHT_GRAY);
-        operateArea.setBounds(30, 40, 500, 500); // 设置矩形区域的位置和大小
-        add(operateArea);
+
+        //Slider
+        JSlider zoomSlider = new JSlider(JSlider.HORIZONTAL, 0, 200, 100);
+        zoomSlider.setBounds(50, 510, 400, 50);
+        zoomSlider.setPreferredSize(new Dimension(zoomSlider.getPreferredSize().width, zoomSlider.getPreferredSize().height / 2));
+        zoomSlider.setMajorTickSpacing(50);
+        zoomSlider.setMinorTickSpacing(10);
+        zoomSlider.setPaintTicks(true);
+        zoomSlider.setPaintLabels(true);
+        JLabel valueLabel = new JLabel("Size: 100%");
+        valueLabel.setSize(200,20);
+        valueLabel.setLocation(460, 515);
+        add(valueLabel);
+        zoomSlider.addChangeListener(new ChangeListener() {
+            public void stateChanged(ChangeEvent e) {
+                int value = zoomSlider.getValue();
+                imageArea.setScale(value / 100.0);
+                valueLabel.setText("Size: " + value + "%");
+            }
+        });
+        add(zoomSlider);
+
+        imageArea = new ImageArea();
+        add(imageArea);
+
+        //Dimension
         addDimensionLabel();
+
         //Button
         addSelectKeepButton();
         addSelectRemoveButton();
@@ -52,8 +76,11 @@ public class GUI extends JFrame{
         addImportButton();
         addRetryButton();
         addDownloadButton();
+
+        setLocationRelativeTo(null);
         this.setVisible(true);
     }
+
     private void addDimensionLabel(){
         dimensionLabel = new JLabel("Dimension:");
         dimensionLabel.setSize(200,20);
@@ -74,7 +101,12 @@ public class GUI extends JFrame{
                 int returnValue = fileChooser.showOpenDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
-                    imgPath = selectedFile.getAbsolutePath();
+                    imgPath = selectedFile.getAbsolutePath();//这里是在后面有用吗。。
+                    imageArea.loadImage(selectedFile);
+                    imageArea.copyImage = imageArea.image;
+                    repaint();
+                    dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
+                    /*
                     try {
                         TargetImage = ImageIO.read(selectedFile);
                         TargetImageCopy = TargetImage;
@@ -106,6 +138,7 @@ public class GUI extends JFrame{
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
+                     */
                 }
             }
         });
@@ -142,8 +175,8 @@ public class GUI extends JFrame{
                     if (result == JOptionPane.OK_OPTION) {
                         try {
                             // 获取用户输入的宽度和高度
-                            sc.ChangeWidth = TargetImage.getWidth() - Integer.parseInt(widthField.getText());
-                            sc.ChangeHeight = TargetImage.getHeight() - Integer.parseInt(heightField.getText());
+                            sc.ChangeWidth = imageArea.image.getWidth() - Integer.parseInt(widthField.getText());
+                            sc.ChangeHeight = imageArea.image.getHeight() - Integer.parseInt(heightField.getText());
                             // 可以在这里进行一些额外的验证
                         } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(null, "Please enter valid numbers for Width and Height.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -170,38 +203,11 @@ public class GUI extends JFrame{
                         new_imgPath = "Code/img/new_image.jpg";
                     }
                 }
-
-                try {
-                    NewImage = ImageIO.read(new FileInputStream(new_imgPath));
-                    dimensionLabel.setText("Dimension: "+ NewImage.getWidth()+"x"+NewImage.getHeight());
-                    int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
-                    int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
-
-                    if(maxWidth > NewImage.getWidth() || maxHeight > NewImage.getHeight()) {
-                        //可以加个判断：如果高/宽大于框的大小再缩。（不过也可以直接规定导入的图片不能大于xxx，否则缩）
-                    }
-                    double widthRatio = (double) maxWidth / NewImage.getWidth();
-                    double heightRatio = (double) maxHeight / NewImage.getHeight();
-                    double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
-
-                    int newWidth = (int) (NewImage.getWidth() * ratio);
-                    int newHeight = (int) (NewImage.getHeight() * ratio);
-
-                    int x = (500 - newWidth) / 2;
-                    int y = (500 - newHeight) / 2;
-
-                    Image scaledImage = NewImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
-                    ImageIcon icon = new ImageIcon(scaledImage);
-                    JLabel imageLabel = new JLabel(icon);
-                    imageLabel.setBounds(x, y, newWidth, newHeight);
-                    operateArea.removeAll(); // 清空 OperateArea 区域
-                    operateArea.add(imageLabel); // 添加缩放后的图片
-                    operateArea.revalidate(); // 重新布局
-                    operateArea.repaint(); // 刷新显示
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-                // 未完待续
+                imageArea.removeAll();
+                imageArea.repaint();
+                imageArea.loadImage(new File(new_imgPath));
+                NewImage = imageArea.image;
+                dimensionLabel.setText("Dimension: "+ NewImage.getWidth()+"x"+NewImage.getHeight());
             }
         });
 
@@ -244,21 +250,21 @@ public class GUI extends JFrame{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    TargetImage = TargetImageCopy;
-                    dimensionLabel.setText("Dimension: "+TargetImage.getWidth()+"x"+TargetImage.getHeight());
+                    imageArea.image = imageArea.copyImage;
+                    dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
                     int maxWidth = operateArea.getWidth(); // 获取 OperateArea 的宽度
                     int maxHeight = operateArea.getHeight(); // 获取 OperateArea 的高度
-                    double widthRatio = (double) maxWidth / TargetImage.getWidth();
-                    double heightRatio = (double) maxHeight / TargetImage.getHeight();
+                    double widthRatio = (double) maxWidth / imageArea.image.getWidth();
+                    double heightRatio = (double) maxHeight / imageArea.image.getHeight();
                     double ratio = Math.min(widthRatio, heightRatio)-0.05; // 取较小的缩放比例
 
-                    int newWidth = (int) (TargetImage.getWidth() * ratio);
-                    int newHeight = (int) (TargetImage.getHeight() * ratio);
+                    int newWidth = (int) (imageArea.image.getWidth() * ratio);
+                    int newHeight = (int) (imageArea.image.getHeight() * ratio);
 
                     int x = (500 - newWidth) / 2;
                     int y = (500 - newHeight) / 2;
 
-                    Image scaledImage = TargetImage.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                    Image scaledImage = imageArea.image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
                     ImageIcon icon = new ImageIcon(scaledImage);
                     JLabel imageLabel = new JLabel(icon);
                     imageLabel.setBounds(x, y, newWidth, newHeight);
