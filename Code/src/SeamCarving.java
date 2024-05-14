@@ -313,7 +313,7 @@ public class SeamCarving {
                                 double distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
                                 // 计算衰减因子（距离越远，因子越小）
-                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+                        double decayFactor = Math.exp(-(distance / maxDistance));
 
                                 // 应用衰减因子到能量上
                                 pre_energy[x] = pre_energy[x] * decayFactor;
@@ -325,7 +325,7 @@ public class SeamCarving {
                                 double distance = Math.sqrt(Math.pow(x-1 - centerX, 2) + Math.pow(y - centerY, 2));
 
                                 // 计算衰减因子（距离越远，因子越小）
-                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+                        double decayFactor = Math.exp(-(distance / maxDistance));
 
                                 // 应用衰减因子到能量上
                                 pre_energy[x-1] = pre_energy[x-1] * decayFactor;
@@ -337,7 +337,7 @@ public class SeamCarving {
                                 double distance = Math.sqrt(Math.pow(x+1 - centerX, 2) + Math.pow(y - centerY, 2));
 
                                 // 计算衰减因子（距离越远，因子越小）
-                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+                        double decayFactor = Math.exp(-(distance / maxDistance));
 
                                 // 应用衰减因子到能量上
                                 pre_energy[x+1] = pre_energy[x+1] * decayFactor;
@@ -447,7 +447,7 @@ public class SeamCarving {
                                 double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x - centerY, 2));
 
                                 // 计算衰减因子（距离越远，因子越小）
-                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+                        double decayFactor = Math.exp(-(distance / maxDistance));
 
                                 // 应用衰减因子到能量上
                                 pre_energy[x] = pre_energy[x] * decayFactor;
@@ -460,7 +460,7 @@ public class SeamCarving {
                                 double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x-1 - centerY, 2));
 
                                 // 计算衰减因子（距离越远，因子越小）
-                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+                        double decayFactor = Math.exp(-(distance / maxDistance));
 
                                 // 应用衰减因子到能量上
                                 pre_energy[x-1] = pre_energy[x-1] * decayFactor;
@@ -473,7 +473,7 @@ public class SeamCarving {
                                 double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x+1 - centerY, 2));
 
                                 // 计算衰减因子（距离越远，因子越小）
-                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+                        double decayFactor = Math.exp(-(distance / maxDistance));
 
                                 // 应用衰减因子到能量上
                                 pre_energy[x+1] = pre_energy[x+1] * decayFactor;
