@@ -65,7 +65,8 @@ public class SeamCarving {
         }
 
         long startTime = System.currentTimeMillis();
-        sc.cutWidth(20);
+        sc.cutWidth(200);
+        sc.cutHeight(100);
         long endTime = System.currentTimeMillis();
         System.out.println("Time taken to seam-carve: " + (endTime - startTime) + "ms");
     }
@@ -107,11 +108,11 @@ public class SeamCarving {
             newImage = removeWidthSeam(newImage, seamMap_w, width, height);
             long endTime = System.currentTimeMillis();
 
-            /*
-             * System.out.println(
-             * "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime
-             * - startTime) + "ms");
-             */
+
+//              System.out.println(
+//              "Time taken to remove width seam " + String.valueOf(i + 1) + " : " + (endTime
+//              - startTime) + "ms");
+
 
         }
         currentImage = newImage;
@@ -142,11 +143,11 @@ public class SeamCarving {
             newImage = removeColumnSeam(newImage, seamMap_h, width, height);
             long endTime = System.currentTimeMillis();
             // Save the seam map image
-            /*
-             * System.out.println(
-             * "Time taken to remove height seam " + String.valueOf(i + 1) + " : " +
-             * (endTime - startTime) + "ms");
-             */
+
+//              System.out.println(
+//              "Time taken to remove height seam " + String.valueOf(i + 1) + " : " +
+//              (endTime - startTime) + "ms");
+
 
         }
         currentImage = newImage;
@@ -300,15 +301,48 @@ public class SeamCarving {
                 }
 
                 if (Objects.equals(MODE, "c")) {
+                    int centerX = (topLeft.x + bottomRight.x) / 2;
+                    int centerY = (topLeft.y + bottomRight.y) / 2;
+
+// 最大距离，用于归一化衰减因子
+                    double maxDistance = Math.sqrt(Math.pow(centerX - topLeft.x, 2) + Math.pow(centerY - topLeft.y, 2));
                     if (topLeft.x <= x && bottomRight.x >= x && topLeft.y <= y && bottomRight.y >= y) {
-                        pre_energy[x] = Math.sqrt(pre_energy[x]);
+                        // 遍历每个点，计算衰减因子并应用
+
+                                // 计算当前点到中心点的距离
+                                double distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+
+                                // 计算衰减因子（距离越远，因子越小）
+                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+
+                                // 应用衰减因子到能量上
+                                pre_energy[x] = pre_energy[x] * decayFactor;
+
                     }
                     if (topLeft.x <= x - 1 && bottomRight.x >= x - 1 && topLeft.y <= y && bottomRight.y >= y) {
-                        pre_energy[x - 1] = Math.sqrt(pre_energy[x - 1]);
+
+                                // 计算当前点到中心点的距离
+                                double distance = Math.sqrt(Math.pow(x-1 - centerX, 2) + Math.pow(y - centerY, 2));
+
+                                // 计算衰减因子（距离越远，因子越小）
+                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+
+                                // 应用衰减因子到能量上
+                                pre_energy[x-1] = pre_energy[x-1] * decayFactor;
+
                     }
                     if (topLeft.x <= x + 1 && bottomRight.x >= x + 1 && topLeft.y <= y && bottomRight.y >= y) {
-                        pre_energy[x + 1] = Math.sqrt(pre_energy[x + 1]);
-                    }
+
+                                // 计算当前点到中心点的距离
+                                double distance = Math.sqrt(Math.pow(x+1 - centerX, 2) + Math.pow(y - centerY, 2));
+
+                                // 计算衰减因子（距离越远，因子越小）
+                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+
+                                // 应用衰减因子到能量上
+                                pre_energy[x+1] = pre_energy[x+1] * decayFactor;
+                            }
+
                 }
 
                 double[] pre_energy_part = { pre_energy[x - 1], pre_energy[x], pre_energy[x + 1] };
@@ -400,14 +434,50 @@ public class SeamCarving {
                 }
 
                 if (Objects.equals(MODE, "c")) {
+                    // 计算中心点坐标
+                    int centerX = (topLeft.x + bottomRight.x) / 2;
+                    int centerY = (topLeft.y + bottomRight.y) / 2;
+
+// 最大距离，用于归一化衰减因子
+                    double maxDistance = Math.sqrt(Math.pow(centerX - topLeft.x, 2) + Math.pow(centerY - topLeft.y, 2));
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
-                        pre_energy[x] = Math.sqrt(pre_energy[x]);
+                        // 遍历每个点，计算衰减因子并应用
+
+                                // 计算当前点到中心点的距离
+                                double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x - centerY, 2));
+
+                                // 计算衰减因子（距离越远，因子越小）
+                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+
+                                // 应用衰减因子到能量上
+                                pre_energy[x] = pre_energy[x] * decayFactor;
+
                     }
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x - 1 && bottomRight.y >= x - 1) {
-                        pre_energy[x - 1] = Math.sqrt(pre_energy[x - 1]);
+                        // 遍历每个点，计算衰减因子并应用
+
+                                // 计算当前点到中心点的距离
+                                double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x-1 - centerY, 2));
+
+                                // 计算衰减因子（距离越远，因子越小）
+                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+
+                                // 应用衰减因子到能量上
+                                pre_energy[x-1] = pre_energy[x-1] * decayFactor;
+
                     }
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x + 1 && bottomRight.y >= x + 1) {
-                        pre_energy[x + 1] = Math.sqrt(pre_energy[x + 1]);
+                        // 遍历每个点，计算衰减因子并应用
+
+                                // 计算当前点到中心点的距离
+                                double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x+1 - centerY, 2));
+
+                                // 计算衰减因子（距离越远，因子越小）
+                                double decayFactor = 1 - (distance / maxDistance); // 这里使用线性衰减，可根据需要修改衰减函数
+
+                                // 应用衰减因子到能量上
+                                pre_energy[x+1] = pre_energy[x+1] * decayFactor;
+
                     }
                 }
 
