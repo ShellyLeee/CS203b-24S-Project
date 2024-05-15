@@ -8,6 +8,8 @@ import javax.imageio.ImageIO;
 
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Arrays;
+import java.util.Stack;
 
 public class SeamCarving {
 
@@ -257,6 +259,7 @@ public class SeamCarving {
         double[] current_energy = new double[w];
         double[] pre_energy = new double[w];
         int[][] seamingMap = new int[h][w];
+        int[][] newSeamingMap;
         // Calculate the energy of each pixel
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
@@ -367,8 +370,17 @@ public class SeamCarving {
         }
 
         // System.out.println("Energy calculated successfully");
-        EandMap result = new EandMap(current_energy, seamingMap);
-        return result;
+        if (Objects.equals(MODE, "c")) {
+            newSeamingMap = rearrange2(seamingMap, w, h, topLeft, bottomRight);
+
+            EandMap result = new EandMap(current_energy, newSeamingMap);
+            return result;
+        }
+        else {
+            EandMap result = new EandMap(current_energy, seamingMap);
+            return result;
+        }
+
         // Return the seam path
         /*
          * seamMap_w = new int[h];
@@ -389,6 +401,7 @@ public class SeamCarving {
         double[] current_energy = new double[h];
         double[] pre_energy = new double[h];
         int[][] seamingMap = new int[w][h];
+        int[][] newSeamingMap;
         // Calculate the energy of each pixel
         for (int y = 0; y < w; y++) {
             for (int x = 0; x < h; x++) {
@@ -503,8 +516,16 @@ public class SeamCarving {
         }
 
         // System.out.println("Energy calculated successfully");
-        EandMap result = new EandMap(current_energy, seamingMap);
-        return result;
+        if (Objects.equals(MODE, "c")) {
+            newSeamingMap = rearrange1(seamingMap, w, h, topLeft, bottomRight);
+
+            EandMap result = new EandMap(current_energy, newSeamingMap);
+            return result;
+        }
+        else {
+            EandMap result = new EandMap(current_energy, seamingMap);
+            return result;
+        }
         // Return the seam path
         /*
          * seamMap_h = new int[w];
@@ -648,9 +669,9 @@ public class SeamCarving {
         }
 
         //
-        if (topLeft != null && bottomRight != null) {
+        if (Objects.equals(MODE, "b") || Objects.equals(MODE, "c")) {
             int selectedY = (topLeft.y + bottomRight.y) / 2;
-            if (seamMap[selectedY] < topLeft.x + 1) {
+            if (seamMap[selectedY] < (topLeft.x + bottomRight.x) ){
                 topLeft.x--;
                 bottomRight.x--;
             }
@@ -683,9 +704,9 @@ public class SeamCarving {
             }
         }
         //
-        if (topLeft != null && bottomRight != null) {
+        if (Objects.equals(MODE, "b") || Objects.equals(MODE, "c")) {
             int selectedX = (topLeft.x + bottomRight.x) / 2;
-            if (seamMap[selectedX] < topLeft.y + 1) {
+            if (seamMap[selectedX] < (topLeft.y + bottomRight.y)/2) {
                 topLeft.y--;
                 bottomRight.y--;
             }
@@ -805,45 +826,81 @@ public class SeamCarving {
         rawImage = newImage;
         return newImage;
     }
-    // public class NonTouchableArea {
-    // private Point topLeft;
-    // private Point bottomRight;
-    //
-    // public NonTouchableArea(Point topLeft, Point bottomRight) {
-    // this.topLeft = topLeft;
-    // this.bottomRight = bottomRight;
-    // }
 
-    // public boolean intersects(int x, int y) {
-    // return y >= topLeft.y && y <= bottomRight.y && x >= topLeft.x && x <=
-    // bottomRight.x;
-    // }
-    // // 检查缝隙是否与水平不可触碰区域相交
-    // private boolean intersectsHorizontalNonTouchableArea(int[] seamMap) {
-    // if (nonTouchableArea == null) {
-    // return false;
-    // }
-    //
-    // for (int y = 0; y < seamMap.length; y++) {
-    // if (nonTouchableArea.intersects(seamMap[y],y)) {
-    // return true;
-    // }
-    // }
-    // return false;
-    // }
-    //
-    // // 检查缝隙是否与垂直不可触碰区域相交
-    // private boolean intersectsVerticalNonTouchableArea(int[] seamMap) {
-    // if (nonTouchableArea == null) {
-    // return false;
-    // }
-    //
-    // for (int x = 0; x < seamMap.length; x++) {
-    // if (nonTouchableArea.intersects(x,seamMap[x])) {
-    // return true;
-    // }
-    // }
-    // return false;
-    // }
 
-}
+        public static int[][] rearrange1(int[][] seamingMap, int w, int h, Point topLeft, Point bottomRight) {
+            Stack<Integer> stack = new Stack<>();
+            int[][] newSeamingMap = new int[w][h];
+
+            // 复制原始数组到新的数组中
+            for (int i = 0; i < w; i++) {
+                newSeamingMap[i] = Arrays.copyOf(seamingMap[i], h);
+            }
+
+            // 遍历数组并将满足条件的元素添加到栈中
+            for (int x = topLeft.x; x <= bottomRight.x; x++) {
+                for (int y = topLeft.y; y <= bottomRight.y; y++) {
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
+                        stack.push(newSeamingMap[x][y]);
+                    }
+                }
+            }
+
+            // 将元素从小到大排序并推入栈中
+            int[] sortedArray = stack.stream().mapToInt(i -> i).toArray();
+            Arrays.sort(sortedArray);
+            stack.clear();
+            for (int num : sortedArray) {
+                stack.push(num);
+            }
+
+            // 将栈中元素从大到小放回原来的位置
+            for (int x = topLeft.x; x <= bottomRight.x; x++) {
+                for (int y = topLeft.y; y <= bottomRight.y; y++) {
+                    if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
+                        newSeamingMap[x][y] = stack.pop();
+                    }
+                }
+            }
+
+            return newSeamingMap;
+        }
+    public static int[][] rearrange2(int[][] seamingMap, int w, int h, Point topLeft, Point bottomRight) {
+        Stack<Integer> stack = new Stack<>();
+        int[][] newSeamingMap = new int[h][w];
+
+        // 复制原始数组到新的数组中
+        for (int i = 0; i < h; i++) {
+            newSeamingMap[i] = Arrays.copyOf(seamingMap[i], w);
+        }
+
+        // 遍历数组并将满足条件的元素添加到栈中
+        for (int x = topLeft.x; x <= bottomRight.x; x++) {
+            for (int y = topLeft.y; y <= bottomRight.y; y++) {
+                if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
+                    stack.push(newSeamingMap[x][y]);
+                }
+            }
+        }
+
+        // 将元素从小到大排序并推入栈中
+        int[] sortedArray = stack.stream().mapToInt(i -> i).toArray();
+        Arrays.sort(sortedArray);
+        stack.clear();
+        for (int num : sortedArray) {
+            stack.push(num);
+        }
+
+        // 将栈中元素从大到小放回原来的位置
+        for (int x = topLeft.x; x <= bottomRight.x; x++) {
+            for (int y = topLeft.y; y <= bottomRight.y; y++) {
+                if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
+                    newSeamingMap[x][y] = stack.pop();
+                }
+            }
+        }
+
+        return newSeamingMap;
+    }
+    }
+
