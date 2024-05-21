@@ -23,6 +23,7 @@ public class GUI extends JFrame{
     public JButton Retry;
     public JButton Download;
     public JButton Help;
+    public JLabel statusLabel;
 
     private final int WIDTH;
     private final int HEIGHT;
@@ -64,6 +65,7 @@ public class GUI extends JFrame{
 
         //Dimension
         addDimensionLabel();
+        addStatusLabel();
 
         //Button
         addSelectKeepButton();
@@ -85,6 +87,14 @@ public class GUI extends JFrame{
         dimensionLabel.setLocation(550, 20);
         add(dimensionLabel);
         dimensionLabel.setVisible(true);
+    }
+
+    private void addStatusLabel(){
+        statusLabel = new JLabel("Picture status:");
+        statusLabel.setSize(200,50);
+        statusLabel.setLocation(550, 20);
+        add(statusLabel);
+        statusLabel.setVisible(true);
     }
 
     private void addHelpButton(){
@@ -155,6 +165,7 @@ public class GUI extends JFrame{
         Shrink.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -185,6 +196,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.cutWidth(sc.ChangeWidth);
                         sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
@@ -202,6 +214,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.cutWidth(sc.WidthRatio);
                         sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 }
@@ -225,6 +238,7 @@ public class GUI extends JFrame{
         Expand.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -255,6 +269,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.expandWidth(sc.ChangeWidth);
                         sc.expandHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
@@ -272,6 +287,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.expandWidth(sc.WidthRatio);
                         sc.expandHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 }
@@ -294,6 +310,7 @@ public class GUI extends JFrame{
         SelectKeep.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -327,6 +344,7 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.ChangeWidth);
                             sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     } else if (choice == JOptionPane.NO_OPTION) {
@@ -344,6 +362,7 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.WidthRatio);
                             sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     }
@@ -369,6 +388,7 @@ public class GUI extends JFrame{
         SelectRemove.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -401,6 +421,7 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.ChangeWidth);
                             sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     } else if (choice == JOptionPane.NO_OPTION) {
@@ -418,6 +439,7 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.WidthRatio);
                             sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     }
@@ -437,6 +459,7 @@ public class GUI extends JFrame{
 
     //Retry: 用来在Shrink或者Expand后重新显示操作前原图。
     private void addRetryButton(){
+        statusLabel.setText("Picture status:");
         Retry= new JButton("Retry");
         Retry.setSize(120,50);
         Retry.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 350);
