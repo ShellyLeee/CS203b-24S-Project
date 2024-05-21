@@ -23,6 +23,7 @@ public class GUI extends JFrame{
     public JButton Retry;
     public JButton Download;
     public JButton Help;
+    public JLabel statusLabel;
 
     private final int WIDTH;
     private final int HEIGHT;
@@ -64,6 +65,7 @@ public class GUI extends JFrame{
 
         //Dimension
         addDimensionLabel();
+        addStatusLabel();
 
         //Button
         addSelectKeepButton();
@@ -87,9 +89,17 @@ public class GUI extends JFrame{
         dimensionLabel.setVisible(true);
     }
 
+    private void addStatusLabel(){
+        statusLabel = new JLabel("Picture status:");
+        statusLabel.setSize(200,50);
+        statusLabel.setLocation(550, 20);
+        add(statusLabel);
+        statusLabel.setVisible(true);
+    }
+
     private void addHelpButton(){
         Help = new JButton("Help");
-        Help.setSize(40,33);
+        Help.setSize(50,40);
         Help.setLocation(8, 8);
 
         Help.addActionListener(new ActionListener() {
@@ -103,7 +113,7 @@ public class GUI extends JFrame{
                 textArea.setText("在操作前请参考我们的说明文档。" + System.lineSeparator() +""+ System.lineSeparator() +
                         "我们的界面布局为：左侧灰色区域为图片操作区，灰色区域右侧的Dimension代表图片目前的尺寸（宽*高），下方进度条可灵活调节图片大小方便观察（size代表放缩程度），右侧有7个按钮可支持图片相关的操作。"+ System.lineSeparator() + ""+ System.lineSeparator() +
                 "按钮使用方法：" + System.lineSeparator() + "1. Import：导入图片。请选择相关图片路径导入图片"+ System.lineSeparator() + "2. Shrink：不选定相关区域，缩小图片"+ System.lineSeparator() + "3. Expand：不选定相关区域，放大图片"+ System.lineSeparator() + "4. Shrink: SelectKeep：选定相关区域以保持不变，缩小图片" + System.lineSeparator() + "5. Shrink: SelectRemove：选定相关区域以增强删除，缩小图片"+ System.lineSeparator() + "6. Retry：重新加载最初版本import的图片"+ System.lineSeparator() + "7. Download：下载现在的图片。请选择相关图片路径导出图片（jpg格式）" +System.lineSeparator()+ ""+ System.lineSeparator() +
-                        "注意事项：" + System.lineSeparator() + "1. 在Shrink、Expand、SelectKeep、SelectRemove时，点击后若出现Mode Selection文本框，请选择依据比例（ratio）或依据数值（value）进行图片的修改操作。"+ System.lineSeparator() +"如果选择比例，您输入的ratio必须位于(0,1)间；如果选择数值，您输入的value必须合乎逻辑。（例如，缩小模式下，输入的value要小于原数值；放大模式下，输入的value要大于原数值）" + System.lineSeparator() + "2. 您可以在导入图片后长按图片中某一点拖出一个红色矩形框，这个框即为选择区域（Selected Area）。如果要使用SelectKeep或SelectRemove模式，请确保您在点击SelectKeep、SelectRemove按钮前已经选定相应区域，再进行后续操作。");
+                        "注意事项：" + System.lineSeparator() + "1. 在Shrink、Expand、SelectKeep、SelectRemove时，点击后若出现Mode Selection文本框，请选择依据比例（ratio）或依据数值（value）进行图片的修改操作。"+ System.lineSeparator() +"如果选择比例，选择缩小模式，您输入的ratio必须位于(0,1)间；选择放大模式，您输入的ratio必须大于1。"+ System.lineSeparator() +"如果选择数值，您输入的value必须合乎逻辑：缩小模式下，输入的value要小于原数值；放大模式下，输入的value要大于原数值。" + System.lineSeparator() +""+ System.lineSeparator() + "2. 您可以在导入图片后长按图片中某一点拖出一个红色矩形框，这个框即为选择区域（Selected Area）。如果要使用SelectKeep或SelectRemove模式，请确保您在点击SelectKeep、SelectRemove按钮前已经选定相应区域，再进行后续操作。");
 
                 // 将 JTextArea 放入 JScrollPane 中
                 JScrollPane scrollPane = new JScrollPane(textArea);
@@ -155,6 +165,7 @@ public class GUI extends JFrame{
         Shrink.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -171,6 +182,7 @@ public class GUI extends JFrame{
                         JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                 // 处理用户选择
                 if (choice == JOptionPane.YES_OPTION) {
+                    JOptionPane.showMessageDialog(null, "Please enter the value which is SMALLER than original size.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                     int result = JOptionPane.showConfirmDialog(null, panel, "Shrink: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
@@ -184,9 +196,11 @@ public class GUI extends JFrame{
                         // Logic
                         sc.cutWidth(sc.ChangeWidth);
                         sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
+                    JOptionPane.showMessageDialog(null, "Please enter the ratio which is SMALLER than 1.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                     int result = JOptionPane.showConfirmDialog(null, panel, "Shrink: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
@@ -200,6 +214,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.cutWidth(sc.WidthRatio);
                         sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 }
@@ -223,6 +238,7 @@ public class GUI extends JFrame{
         Expand.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -239,6 +255,7 @@ public class GUI extends JFrame{
                         JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                 // 处理用户选择
                 if (choice == JOptionPane.YES_OPTION) {
+                    JOptionPane.showMessageDialog(null, "Please enter the value which is BIGGER than original size.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                     int result = JOptionPane.showConfirmDialog(null, panel, "Expand: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
@@ -252,15 +269,17 @@ public class GUI extends JFrame{
                         // Logic
                         sc.expandWidth(sc.ChangeWidth);
                         sc.expandHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 } else if (choice == JOptionPane.NO_OPTION) {
+                    JOptionPane.showMessageDialog(null, "Please enter the ratio which is BIGGER than 1.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                     int result = JOptionPane.showConfirmDialog(null, panel, "Expand: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
                     if (result == JOptionPane.OK_OPTION) {
                         try {
                             // 获取用户输入的ratio
-                            sc.WidthRatio = 1-Double.parseDouble(widthField.getText());
-                            sc.HeightRatio = 1-Double.parseDouble(heightField.getText());
+                            sc.WidthRatio = Double.parseDouble(widthField.getText()) - 1;
+                            sc.HeightRatio = Double.parseDouble(heightField.getText()) - 1;
                             // 可以在这里进行一些额外的验证
                         } catch (NumberFormatException ex) {
                             JOptionPane.showMessageDialog(null, "Please enter valid numbers for Ratio.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -268,6 +287,7 @@ public class GUI extends JFrame{
                         // Logic
                         sc.expandWidth(sc.WidthRatio);
                         sc.expandHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                        statusLabel.setText("Picture status: Updated");
                         imgPath = "Code/img/new_image.jpg";
                     }
                 }
@@ -284,12 +304,13 @@ public class GUI extends JFrame{
 
     private void addSelectKeepButton(){
         SelectKeep= new JButton("Shrink: SelectKeep");
-        SelectKeep.setSize(150,50);
+        SelectKeep.setSize(160,50);
         SelectKeep.setLocation(WIDTH * 4 / 5 - 15, HEIGHT / 10 + 210);
 
         SelectKeep.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -309,6 +330,7 @@ public class GUI extends JFrame{
                             JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                     // 处理用户选择
                     if (choice == JOptionPane.YES_OPTION) {
+                        JOptionPane.showMessageDialog(null, "Please enter the value which is SMALLER than original size.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                         int result = JOptionPane.showConfirmDialog(null, panel, "Select to Keep: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                         if (result == JOptionPane.OK_OPTION) {
                             try {
@@ -322,9 +344,11 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.ChangeWidth);
                             sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     } else if (choice == JOptionPane.NO_OPTION) {
+                        JOptionPane.showMessageDialog(null, "Please enter the value which is SMALLER than 1.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                         int result = JOptionPane.showConfirmDialog(null, panel, "Select to Keep: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
                         if (result == JOptionPane.OK_OPTION) {
                             try {
@@ -338,6 +362,7 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.WidthRatio);
                             sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     }
@@ -357,12 +382,13 @@ public class GUI extends JFrame{
 
     private void addSelectRemoveButton(){
         SelectRemove= new JButton("Shrink: SelectRemove");
-        SelectRemove.setSize(150,50);
+        SelectRemove.setSize(160,50);
         SelectRemove.setLocation(WIDTH * 4 / 5 - 15, HEIGHT / 10 + 280);
 
         SelectRemove.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Picture status:");
                 // 创建一个对话框
                 JPanel panel = new JPanel();
                 JTextField widthField = new JTextField(5);
@@ -381,6 +407,7 @@ public class GUI extends JFrame{
                             JOptionPane.QUESTION_MESSAGE, null, new Object[] { "value", "ratio" }, "value");
                     // 处理用户选择
                     if (choice == JOptionPane.YES_OPTION) {
+                        JOptionPane.showMessageDialog(null, "Please enter the value which is SMALLER than original size.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                         int result = JOptionPane.showConfirmDialog(null, panel, "Select to Remove: Enter Width and Height", JOptionPane.OK_CANCEL_OPTION);
                         if (result == JOptionPane.OK_OPTION) {
                             try {
@@ -394,9 +421,11 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.ChangeWidth);
                             sc.cutHeight(sc.ChangeHeight);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     } else if (choice == JOptionPane.NO_OPTION) {
+                        JOptionPane.showMessageDialog(null, "Please enter the ratio which is SMALLER than 1.", "Alert", JOptionPane.INFORMATION_MESSAGE);
                         int result = JOptionPane.showConfirmDialog(null, panel, "Select to Keep: Enter Width Ratio and Height Ratio", JOptionPane.OK_CANCEL_OPTION);
                         if (result == JOptionPane.OK_OPTION) {
                             try {
@@ -410,6 +439,7 @@ public class GUI extends JFrame{
                             // Logic
                             sc.cutWidth(sc.WidthRatio);
                             sc.cutHeight(sc.HeightRatio);//这个方法会在img文件夹生成new_img.jpg
+                            statusLabel.setText("Picture status: Updated");
                             imgPath = "Code/img/new_image.jpg";
                         }
                     }
@@ -429,6 +459,7 @@ public class GUI extends JFrame{
 
     //Retry: 用来在Shrink或者Expand后重新显示操作前原图。
     private void addRetryButton(){
+        statusLabel.setText("Picture status:");
         Retry= new JButton("Retry");
         Retry.setSize(120,50);
         Retry.setLocation(WIDTH * 4 / 5, HEIGHT / 10 + 350);
