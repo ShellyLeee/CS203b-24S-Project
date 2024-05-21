@@ -307,42 +307,39 @@ public class SeamCarving {
                     int centerX = (topLeft.x + bottomRight.x) / 2;
                     int centerY = (topLeft.y + bottomRight.y) / 2;
 
-// 最大距离，用于归一化衰减因子
                     double maxDistance = Math.sqrt(Math.pow(centerX - topLeft.x, 2) + Math.pow(centerY - topLeft.y, 2));
                     if (topLeft.x <= x && bottomRight.x >= x && topLeft.y <= y && bottomRight.y >= y) {
-                        // 遍历每个点，计算衰减因子并应用
 
-                                // 计算当前点到中心点的距离
                                 double distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
 
-                                // 计算衰减因子（距离越远，因子越小）
-                        double decayFactor = Math.exp(-(distance / maxDistance));
 
-                                // 应用衰减因子到能量上
+                                double decayFactor = Math.exp(-(distance / maxDistance));
+
+
                                 pre_energy[x] = pre_energy[x] * decayFactor;
 
                     }
                     if (topLeft.x <= x - 1 && bottomRight.x >= x - 1 && topLeft.y <= y && bottomRight.y >= y) {
 
-                                // 计算当前点到中心点的距离
+
                                 double distance = Math.sqrt(Math.pow(x-1 - centerX, 2) + Math.pow(y - centerY, 2));
 
-                                // 计算衰减因子（距离越远，因子越小）
-                        double decayFactor = Math.exp(-(distance / maxDistance));
 
-                                // 应用衰减因子到能量上
+                                double decayFactor = Math.exp(-(distance / maxDistance));
+
+
                                 pre_energy[x-1] = pre_energy[x-1] * decayFactor;
 
                     }
                     if (topLeft.x <= x + 1 && bottomRight.x >= x + 1 && topLeft.y <= y && bottomRight.y >= y) {
 
-                                // 计算当前点到中心点的距离
+
                                 double distance = Math.sqrt(Math.pow(x+1 - centerX, 2) + Math.pow(y - centerY, 2));
 
-                                // 计算衰减因子（距离越远，因子越小）
-                        double decayFactor = Math.exp(-(distance / maxDistance));
 
-                                // 应用衰减因子到能量上
+                                double decayFactor = Math.exp(-(distance / maxDistance));
+
+
                                 pre_energy[x+1] = pre_energy[x+1] * decayFactor;
                             }
 
@@ -432,7 +429,7 @@ public class SeamCarving {
                     continue;
                 }
 
-                // select minimus energy path from the last row
+
 
                 if (Objects.equals(MODE, "b")) {
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
@@ -447,48 +444,48 @@ public class SeamCarving {
                 }
 
                 if (Objects.equals(MODE, "c")) {
-                    // 计算中心点坐标
+
                     int centerX = (topLeft.x + bottomRight.x) / 2;
                     int centerY = (topLeft.y + bottomRight.y) / 2;
 
-// 最大距离，用于归一化衰减因子
+
                     double maxDistance = Math.sqrt(Math.pow(centerX - topLeft.x, 2) + Math.pow(centerY - topLeft.y, 2));
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
-                        // 遍历每个点，计算衰减因子并应用
 
-                                // 计算当前点到中心点的距离
+
+
                                 double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x - centerY, 2));
 
-                                // 计算衰减因子（距离越远，因子越小）
-                        double decayFactor = Math.exp(-(distance / maxDistance));
 
-                                // 应用衰减因子到能量上
+                                double decayFactor = Math.exp(-(distance / maxDistance));
+
+
                                 pre_energy[x] = pre_energy[x] * decayFactor;
 
                     }
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x - 1 && bottomRight.y >= x - 1) {
-                        // 遍历每个点，计算衰减因子并应用
 
-                                // 计算当前点到中心点的距离
+
+
                                 double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x-1 - centerY, 2));
 
-                                // 计算衰减因子（距离越远，因子越小）
+
                         double decayFactor = Math.exp(-(distance / maxDistance));
 
-                                // 应用衰减因子到能量上
+
                                 pre_energy[x-1] = pre_energy[x-1] * decayFactor;
 
                     }
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x + 1 && bottomRight.y >= x + 1) {
-                        // 遍历每个点，计算衰减因子并应用
 
-                                // 计算当前点到中心点的距离
+
+
                                 double distance = Math.sqrt(Math.pow(y - centerX, 2) + Math.pow(x+1 - centerY, 2));
 
-                                // 计算衰减因子（距离越远，因子越小）
+
                         double decayFactor = Math.exp(-(distance / maxDistance));
 
-                                // 应用衰减因子到能量上
+
                                 pre_energy[x+1] = pre_energy[x+1] * decayFactor;
 
                     }
@@ -832,12 +829,12 @@ public class SeamCarving {
             Stack<Integer> stack = new Stack<>();
             int[][] newSeamingMap = new int[w][h];
 
-            // 复制原始数组到新的数组中
+
             for (int i = 0; i < w; i++) {
                 newSeamingMap[i] = Arrays.copyOf(seamingMap[i], h);
             }
 
-            // 遍历数组并将满足条件的元素添加到栈中
+
             for (int x = topLeft.x; x <= bottomRight.x; x++) {
                 for (int y = topLeft.y; y <= bottomRight.y; y++) {
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
@@ -846,7 +843,7 @@ public class SeamCarving {
                 }
             }
 
-            // 将元素从小到大排序并推入栈中
+
             int[] sortedArray = stack.stream().mapToInt(i -> i).toArray();
             Arrays.sort(sortedArray);
             stack.clear();
@@ -854,7 +851,7 @@ public class SeamCarving {
                 stack.push(num);
             }
 
-            // 将栈中元素从大到小放回原来的位置
+
             for (int x = topLeft.x; x <= bottomRight.x; x++) {
                 for (int y = topLeft.y; y <= bottomRight.y; y++) {
                     if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
@@ -869,12 +866,12 @@ public class SeamCarving {
         Stack<Integer> stack = new Stack<>();
         int[][] newSeamingMap = new int[h][w];
 
-        // 复制原始数组到新的数组中
+
         for (int i = 0; i < h; i++) {
             newSeamingMap[i] = Arrays.copyOf(seamingMap[i], w);
         }
 
-        // 遍历数组并将满足条件的元素添加到栈中
+
         for (int x = topLeft.x; x <= bottomRight.x; x++) {
             for (int y = topLeft.y; y <= bottomRight.y; y++) {
                 if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
@@ -883,7 +880,7 @@ public class SeamCarving {
             }
         }
 
-        // 将元素从小到大排序并推入栈中
+
         int[] sortedArray = stack.stream().mapToInt(i -> i).toArray();
         Arrays.sort(sortedArray);
         stack.clear();
@@ -891,7 +888,7 @@ public class SeamCarving {
             stack.push(num);
         }
 
-        // 将栈中元素从大到小放回原来的位置
+        
         for (int x = topLeft.x; x <= bottomRight.x; x++) {
             for (int y = topLeft.y; y <= bottomRight.y; y++) {
                 if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {
