@@ -43,7 +43,7 @@ public class ImageArea extends JPanel {
     public ImageArea() {
         //loadImage();
         setPreferredSize(new Dimension(800, 800)); // 设置开始大小
-        setBounds(50, 40, 450, 450);
+        setBounds(60, 50, 450, 450);
         setLayout(null);
 
         // 添加鼠标监听器
