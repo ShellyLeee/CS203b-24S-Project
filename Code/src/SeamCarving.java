@@ -666,9 +666,16 @@ public class SeamCarving {
         }
 
         //
-        if (Objects.equals(MODE, "b") || Objects.equals(MODE, "c")) {
+        if (Objects.equals(MODE, "b")) {
             int selectedY = (topLeft.y + bottomRight.y) / 2;
-            if (seamMap[selectedY] < (topLeft.x + bottomRight.x) ){
+            if (seamMap[selectedY] < (topLeft.x + bottomRight.x)/2 ){
+                topLeft.x--;
+                bottomRight.x--;
+            }
+        }
+        if (Objects.equals(MODE, "c")) {
+            int selectedY = (topLeft.y + bottomRight.y) / 2;
+            if (seamMap[selectedY] < (topLeft.x + bottomRight.x)/2 ){
                 topLeft.x--;
                 bottomRight.x--;
             }
@@ -701,14 +708,20 @@ public class SeamCarving {
             }
         }
         //
-        if (Objects.equals(MODE, "b") || Objects.equals(MODE, "c")) {
+        if (Objects.equals(MODE, "b") ) {
             int selectedX = (topLeft.x + bottomRight.x) / 2;
             if (seamMap[selectedX] < (topLeft.y + bottomRight.y)/2) {
                 topLeft.y--;
                 bottomRight.y--;
             }
         }
-
+        if ( Objects.equals(MODE, "c")) {
+            int selectedX = (topLeft.x + bottomRight.x) / 2;
+            if (seamMap[selectedX] < (topLeft.y + bottomRight.y)/2) {
+                topLeft.y--;
+                bottomRight.y--;
+            }
+        }
         rawImage = newImage;
         return newImage;
     }
@@ -888,7 +901,7 @@ public class SeamCarving {
             stack.push(num);
         }
 
-        
+
         for (int x = topLeft.x; x <= bottomRight.x; x++) {
             for (int y = topLeft.y; y <= bottomRight.y; y++) {
                 if (topLeft.x <= y && bottomRight.x >= y && topLeft.y <= x && bottomRight.y >= x) {

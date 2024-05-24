@@ -99,7 +99,7 @@ public class GUI extends JFrame{
 
     private void addHelpButton(){
         Help = new JButton("Help");
-        Help.setSize(50,40);
+        Help.setSize(65,40);
         Help.setLocation(8, 8);
 
         Help.addActionListener(new ActionListener() {
@@ -304,7 +304,7 @@ public class GUI extends JFrame{
 
     private void addSelectKeepButton(){
         SelectKeep= new JButton("Shrink: SelectKeep");
-        SelectKeep.setSize(160,50);
+        SelectKeep.setSize(180,50);
         SelectKeep.setLocation(WIDTH * 4 / 5 - 15, HEIGHT / 10 + 210);
 
         SelectKeep.addActionListener(new ActionListener() {
@@ -382,7 +382,7 @@ public class GUI extends JFrame{
 
     private void addSelectRemoveButton(){
         SelectRemove= new JButton("Shrink: SelectRemove");
-        SelectRemove.setSize(160,50);
+        SelectRemove.setSize(180,50);
         SelectRemove.setLocation(WIDTH * 4 / 5 - 15, HEIGHT / 10 + 280);
 
         SelectRemove.addActionListener(new ActionListener() {
