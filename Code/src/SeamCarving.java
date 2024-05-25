@@ -676,7 +676,7 @@ public class SeamCarving {
         if (Objects.equals(MODE, "c")) {
             int selectedY = (topLeft.y + bottomRight.y) / 2;
             if (seamMap[selectedY] < (topLeft.x + bottomRight.x)/2 ){
-                topLeft.x--;
+
                 bottomRight.x--;
             }
         }
@@ -718,7 +718,7 @@ public class SeamCarving {
         if ( Objects.equals(MODE, "c")) {
             int selectedX = (topLeft.x + bottomRight.x) / 2;
             if (seamMap[selectedX] < (topLeft.y + bottomRight.y)/2) {
-                topLeft.y--;
+
                 bottomRight.y--;
             }
         }
