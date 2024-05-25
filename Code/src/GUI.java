@@ -469,6 +469,7 @@ public class GUI extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 imageArea.image = imageArea.copyImage;
                 imgPath = initialImagePath;
+                imageArea.ImageCoordinates();
                 repaint();
                 dimensionLabel.setText("Dimension: "+imageArea.image.getWidth()+"x"+imageArea.image.getHeight());
             }
